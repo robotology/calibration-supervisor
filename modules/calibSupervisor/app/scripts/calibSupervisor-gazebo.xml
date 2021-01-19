@@ -1,0 +1,59 @@
+<application>
+    <name>Calib Supervisor Gazebo App</name>
+
+    <module>
+      <name>gzserver</name>
+      <parameters>camera-calibration-chessboard.sdf</parameters>
+      <node>localhost</node>
+    </module>
+
+    <module>
+      <name>gzclient</name>
+      <node>localhost</node>
+    </module>
+
+    <module>
+      <name>calibSupervisor</name>
+      <parameters>--fileName calibrations_gazebo.ini</parameters>
+      <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <node>localhost</node>
+        <parameters>--name /orig --x 0 --y 0</parameters>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <node>localhost</node>
+        <parameters>--name /display --x 300 --y 0</parameters>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <node>localhost</node>
+        <parameters>--name /sendtocalib --x 600 --y 0</parameters>
+    </module>
+
+    <connection>
+        <from>/icubSim/cam/left_distorted/rgbImage:o</from>
+        <to>/calibSupervisor/image:i</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+    <connection>
+        <from>/calibSupervisor/image:o</from>
+        <to>/orig</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+    <connection>
+        <from>/calibSupervisor/display:o</from>
+        <to>/display</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+    <connection>
+        <from>/calibSupervisor/target:o</from>
+        <to>/sendtocalib</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+</application>

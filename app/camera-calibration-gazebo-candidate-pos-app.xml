@@ -1,0 +1,107 @@
+<application>
+
+  <name>Camera Calibration Gazebo Candidate Positions App</name>
+
+  <!--<module>
+      <name>stereoCalib</name>
+      <parameters>--robotName icubSim --context camera-calibration-best-pos --from icubSimEyes.ini</parameters>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>movePattern</name>
+      <parameters>--random false</parameters>
+      <node>localhost</node>
+  </module> -->
+
+  <module>
+      <name>yarpview</name>
+      <parameters>--name /view_left --x 20 --y 20</parameters>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>yarpview</name>
+      <parameters>--name /view_right --x 20 --y 420</parameters>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>yarpview</name>
+      <parameters>--name /calib_left --x 420 --y 20</parameters>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>yarpview</name>
+      <parameters>--name /calib_right --x 420 --y 420</parameters>
+      <node>localhost</node>
+  </module>
+
+  <connection>
+      <from>/movePattern/mover:o</from>
+      <to>/chessboard/mover:i</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/chessboard/mover:o</from>
+      <to>/movePattern/mover:i</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/icubSim/cam/left_distorted/rgbImage:o</from>
+      <to>/movePattern/leftImage:i</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/icubSim/cam/right_distorted/rgbImage:o</from>
+      <to>/movePattern/rightImage:i</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/movePattern/leftImage:o</from>
+      <to>/stereoCalib/cam/left:i</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/movePattern/rightImage:o</from>
+      <to>/stereoCalib/cam/right:i</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/movePattern/calib:rpc</from>
+      <to>/stereoCalib/cmd</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/icubSim/cam/left_distorted/rgbImage:o</from>
+      <to>/view_left</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/icubSim/cam/right_distorted/rgbImage:o</from>
+      <to>/view_right</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/stereoCalib/cam/left:o</from>
+      <to>/calib_left</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/stereoCalib/cam/right:o</from>
+      <to>/calib_right</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+</application>

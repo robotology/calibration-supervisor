@@ -1,0 +1,88 @@
+<application>
+
+  <name>Camera Undistortion Gazebo Chessboard App</name>
+
+  <module>
+      <name>gzserver</name>
+      <parameters>camera-calibration-chessboard.sdf</parameters>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>gzclient</name>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>camCalib</name>
+      <parameters>--robotName icubSim --name /camCalib/left --context camera-calibration-best-pos --from icubSimEyes.ini --group CAMERA_CALIBRATION_LEFT</parameters>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>camCalib</name>
+      <parameters>--robotName icubSim --name /camCalib/right --context camera-calibration-best-pos --from icubSimEyes.ini --group CAMERA_CALIBRATION_RIGHT</parameters>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>yarpview</name>
+      <parameters>--name /view_left --x 20 --y 20</parameters>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>yarpview</name>
+      <parameters>--name /view_right --x 20 --y 420</parameters>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>yarpview</name>
+      <parameters>--name /view_left_undistorted --x 420 --y 20</parameters>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>yarpview</name>
+      <parameters>--name /view_right_undistorted --x 420 --y 420</parameters>
+      <node>localhost</node>
+  </module>
+
+  <connection>
+      <from>/icubSim/cam/left_distorted/rgbImage:o</from>
+      <to>/camCalib/left/in</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/icubSim/cam/right_distorted/rgbImage:o</from>
+      <to>/camCalib/right/in</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/icubSim/cam/left_distorted/rgbImage:o</from>
+      <to>/view_left</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/icubSim/cam/right_distorted/rgbImage:o</from>
+      <to>/view_right</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/camCalib/left/out</from>
+      <to>/view_left_undistorted</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/camCalib/right/out</from>
+      <to>/view_right_undistorted</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+</application>
