@@ -1,0 +1,13 @@
+material Random
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture random.jpg
+			}
+		}
+	}
+}

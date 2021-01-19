@@ -1,0 +1,13 @@
+material Chessboard
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture Checkerboard-A4-30mm-8x6-1.jpg
+			}
+		}
+	}
+}

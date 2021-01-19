@@ -1,0 +1,28 @@
+<?xml version='1.0'?>
+<sdf version='1.5'>
+  <model name='chessboard'>
+
+    <link name='marker'>
+      <pose frame=''>0 0 0 0 0 0</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.297 0.21 0.001</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://chessboard/materials/scripts</uri>
+            <uri>model://chessboard/materials/textures</uri>
+            <name>Chessboard</name>
+          </script>
+        </material>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <transparency>false</transparency>
+      </visual>
+    </link>
+    <static>false</static>
+    <allow_auto_disable>true</allow_auto_disable>
+  </model>
+</sdf>
