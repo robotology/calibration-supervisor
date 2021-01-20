@@ -70,6 +70,7 @@ function getFileParameters () {
 
 icubEyesFile=$1
 outputFile=$2
+calibContext=$3
 
 if [[ $# -lt 2 ]] ; then
     echo "No options were passed!"
@@ -79,10 +80,13 @@ if [[ $# -lt 2 ]] ; then
 fi
 
 echo " "
-echo "Running script...with params $icubEyesFile $outputFile"
+echo "Running script...with params $icubEyesFile $outputFile $calibContext"
 echo " "
 declare -A outputElements
 declare -A icubEyesElements
+
+echo "Running stereoCalib"
+stereoCalib --context $calibContext --from $icubEyesFile /dev/null 2>&1 & 
 
 FILE=$outputFile
 while [ ! -f $outputFile ]
@@ -102,6 +106,8 @@ getFileParameters $icubEyesFile icubEyesElements
 #echo "Got ${outputElements[1,0]} ${outputElements[1,1]} ${outputElements[1,2]} ${outputElements[1,5]} ${outputElements[1,6]}"
 
 copyParams $icubEyesFile icubEyesElements outputElements 
+
+camCalib --from $icubEyesFile /dev/null 2>&1
 
 echo " "
 echo "Script completed successfully..."
