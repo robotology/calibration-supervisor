@@ -69,13 +69,13 @@ function getFileParameters () {
 ###############################################################################
 
 icubEyesFile=$1
-outputFile=$2
+outputFile=/root/.local/share/yarp/contexts/$3/$2
 calibContext=$3
 
-if [[ $# -lt 2 ]] ; then
+if [[ $# -lt 3 ]] ; then
     echo "No options were passed!"
 
-    echo "You need to run this script with nameOfiCubEyes.ini and nameofOutputFile.ini"
+    echo "You need to run this script with nameOfiCubEyes.ini nameofOutputFile.ini and context"
     exit 1
 fi
 
@@ -86,7 +86,7 @@ declare -A outputElements
 declare -A icubEyesElements
 
 echo "Running stereoCalib"
-stereoCalib --context $calibContext --from $icubEyesFile /dev/null 2>&1 & 
+stereoCalib --context $calibContext --from $icubEyesFile > /dev/null 2>&1 & 
 
 FILE=$outputFile
 while [ ! -f $outputFile ]
@@ -107,7 +107,8 @@ getFileParameters $icubEyesFile icubEyesElements
 
 copyParams $icubEyesFile icubEyesElements outputElements 
 
-camCalib --from $icubEyesFile /dev/null 2>&1
+camCalib --name /camCalib/right --from $icubEyesFile --group CAMERA_CALIBRATION_RIGHT > /dev/null 2>&1 &
+camCalib --name /camCalib/left --from $icubEyesFile --group CAMERA_CALIBRATION_LEFT > /dev/null 2>&1
 
 echo " "
 echo "Script completed successfully..."
