@@ -192,13 +192,13 @@ public:
         rpcClient.open("/"+moduleName+"/rpcClient");
         
         //yarp::os::Network::connect("/yarp-webcam/image:o", BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> >::getName().c_str());
-        yarp::os::Network::connect("/icub/cam/left", BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> >::getName().c_str());
+//        yarp::os::Network::connect("/icub/cam/left", BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> >::getName().c_str());
         
         //yarp::os::Network::connect("/icub/cam/left", "/orig");
 
-        yarp::os::Network::connect("/icub/cam/right", inPortRight.getName().c_str());
-        yarp::os::Network::connect(dispOutPort.getName().c_str(), "/display");
-        yarp::os::Network::connect(outPortLeft.getName().c_str(), "/sendtocalib");
+//        yarp::os::Network::connect("/icub/cam/right", inPortRight.getName().c_str());
+//        yarp::os::Network::connect(dispOutPort.getName().c_str(), "/display");
+//        yarp::os::Network::connect(outPortLeft.getName().c_str(), "/sendtocalib");
         yarp::os::Network::connect(rpcClient.getName().c_str(), "/yarpdataplayer/rpc:i");
         
         indexCalib = 0;
