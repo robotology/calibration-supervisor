@@ -71,6 +71,12 @@ function getFileParameters () {
 icubEyesFile=$1
 outputFile=/root/.local/share/yarp/contexts/$3/$2
 calibContext=$3
+robotName=$4
+if [[ $robotName == "" ]]
+then
+    echo "Robot name not specified"
+    robotName=icub
+fi
 
 if [[ $# -lt 3 ]] ; then
     echo "No options were passed!"
@@ -80,13 +86,13 @@ if [[ $# -lt 3 ]] ; then
 fi
 
 echo " "
-echo "Running script...with params $icubEyesFile $outputFile $calibContext"
+echo "Running script...with params $icubEyesFile $outputFile $calibContext $robotName"
 echo " "
 declare -A outputElements
 declare -A icubEyesElements
 
 echo "Running stereoCalib"
-stereoCalib --context $calibContext --from $icubEyesFile > /dev/null 2>&1 & 
+stereoCalib --robotName $robotName --context $calibContext --from $icubEyesFile > /dev/null 2>&1 & 
 
 FILE=$outputFile
 while [ ! -f $outputFile ]
