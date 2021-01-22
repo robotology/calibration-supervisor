@@ -25,6 +25,13 @@ service calibSupervisor_IDL
     bool displayOverlay(1:string on);
     
     /**
+    * Set the value of the percentage threshold
+    @param value specifies its value
+    * @return true/false on success/failure
+    */
+    bool setPercentage(1:double value)
+    
+    /**
     * restart the supervised calibration procedure
     * @return true/false on success/failure
     */
