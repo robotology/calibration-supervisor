@@ -107,9 +107,14 @@ function getFileParameters () {
 # "MAIN" FUNCTION:                                                            #
 ###############################################################################
 
-icubEyesFile=$1
-outputFile=/root/.local/share/yarp/contexts/$3/$2
 calibContext=$3
+
+yarpResource=$(yarp resource --context $calibContext --from $1)
+resourcePath=$(echo "$yarpResource" | awk -F'"' '{print $2}' | awk -F'icubEyes.ini' '{print $1}')
+
+icubEyesFile=$resourcePath/$calibContext/$1
+outputFile=$resourcePath/$calibContext/$2
+
 robotName=$4
 if [[ $robotName == "" ]]
 then
@@ -156,6 +161,8 @@ copyParams $icubEyesFile icubEyesElements outputElements
 sed -i '$ d' $outputFile
 #sed -i '$ d' $icubEyesFile
 #sed -i '' -e '$ d' $outputFile
+
+sleep 3
 
 camCalib --name /camCalib/right --from $icubEyesFile --group CAMERA_CALIBRATION_RIGHT > /dev/null 2>&1 &
 camCalib --name /camCalib/left --from $icubEyesFile --group CAMERA_CALIBRATION_LEFT > /dev/null 2>&1
