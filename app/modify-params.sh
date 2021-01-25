@@ -115,6 +115,12 @@ resourcePath=$(echo "$yarpResource" | awk -F'"' '{print $2}' | awk -F'/icubEyes.
 icubEyesFile=$resourcePath/$1
 outputFile=$resourcePath/$2
 
+if test -f "$outputFile"; then
+    echo "$outputFile exists."
+    echo "Removing $outputFile."
+    rm $outputFile
+fi
+
 robotName=$4
 if [[ $robotName == "" ]]
 then
