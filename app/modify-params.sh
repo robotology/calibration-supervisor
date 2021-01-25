@@ -110,10 +110,10 @@ function getFileParameters () {
 calibContext=$3
 
 yarpResource=$(yarp resource --context $calibContext --from $1)
-resourcePath=$(echo "$yarpResource" | awk -F'"' '{print $2}' | awk -F'icubEyes.ini' '{print $1}')
+resourcePath=$(echo "$yarpResource" | awk -F'"' '{print $2}' | awk -F'/icubEyes.ini' '{print $1}')
 
-icubEyesFile=$resourcePath/$calibContext/$1
-outputFile=$resourcePath/$calibContext/$2
+icubEyesFile=$resourcePath/$1
+outputFile=$resourcePath/$2
 
 robotName=$4
 if [[ $robotName == "" ]]
@@ -136,7 +136,7 @@ declare -A outputElements
 declare -A icubEyesElements
 
 echo "Running stereoCalib"
-stereoCalib --robotName $robotName --context $calibContext --from $icubEyesFile > /dev/null 2>&1 & 
+stereoCalib --robotName $robotName --context $calibContext --from $icubEyesFile --STEREO_CALIBRATION_CONFIGURATION::numberOfPairs 30 > /dev/null 2>&1 & 
 
 FILE=$outputFile
 while [ ! -f $outputFile ]
