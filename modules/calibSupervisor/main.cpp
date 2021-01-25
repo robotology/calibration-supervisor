@@ -409,11 +409,11 @@ public:
                 cv::Mat tmpImg; //= result;
                 result.copyTo(tmpImg, mask);
 
-                bool patternfound = findChessboardCorners(tmpImg, patternsize, corners,
-                                    cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE
-                                    | cv::CALIB_CB_FAST_CHECK);
+//                bool patternfound = findChessboardCorners(tmpImg, patternsize, corners,
+//                                    cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE
+//                                    | cv::CALIB_CB_FAST_CHECK);
 
-                //bool patternfound = true;
+                bool patternfound = true;
                 cv::threshold(result, result, 100, 255, cv::THRESH_BINARY);
                 cv::threshold(calibData[indexCalib].resultImage,calibData[indexCalib].resultImage, 100, 255, cv::THRESH_BINARY);
                 
@@ -496,7 +496,7 @@ public:
             dispImage = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imgToSend_flipped);
             dispOutPort.write();
 
-            if (sendIndex < indexCalib)
+            if (sendIndex < indexCalib && !completedCalibration)
             {
                 templImage.resize(calibData[indexCalib].resultImage.size().width, calibData[indexCalib].resultImage.size().height);
                 templImage = yarp::cv::fromCvMat<yarp::sig::PixelMono>(calibData[indexCalib].resultImage);
