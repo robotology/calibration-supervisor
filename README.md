@@ -30,7 +30,7 @@ We devised this part entirely in `Gazebo`, through the following steps:
 - **Simulate distortion and ideal pinhole camera**:
 
     We simulate both an *ideal* and a *distorted* camera on the robot, in the same position. The ideal camera allows us to have a ground truth image to evaluate the quality of the calibration procedure. 
-    The robot model can be found [here](https://github.com/vvasco/camera-calibration/tree/master/gazebo/models/icub-distorted-camera).
+    The robot model can be found in the [`gazebo/models/icub-distorted-camera` directory](gazebo/models/icub-distorted-camera).
     
     A `8x6` chessboard is then placed in front of the robot. 
 
