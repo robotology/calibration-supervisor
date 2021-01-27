@@ -265,7 +265,7 @@ public:
                 std::string path = filePath + calibData[x].imageName;
 
                 //load original image
-                cv::Mat tmp_img = cv::imread(path, cv::IMREAD_UNCHANGED);
+                cv::Mat tmp_img = cv::imread(path, cv::IMREAD_GRAYSCALE);
                 cv::flip(tmp_img, calibData[x].image, 1); 
 
                 calibData[x].topLeft.x = calibData[x].image.cols - calibData[x].topLeft.x;
@@ -296,14 +296,8 @@ public:
 
                 //get the resulting roi onto black image
                 calibData[x].image.copyTo(calibData[x].resultImage, calibData[x].imageMask);
-                cvtColor(calibData[x].resultImage, calibData[x].resultImage, cv::COLOR_BGR2GRAY);
-
-                //std::string calibname = "calib" + std::to_string(indexCalib) + ".png";
-                //imwrite(calibname, calibData[indexCalib].resultImage);
-                }
+            }
         }
-        
-        
         configDone = true;
         return isFileValid;
     }
@@ -384,7 +378,6 @@ public:
             imgMat = yarp::cv::toCvMat(inImage);
 
             cv::flip(imgMat, imgMat_flipped, 1);
-        
 
             if (!completedCalibration)
             {
@@ -402,7 +395,6 @@ public:
                 drawContours( mask, coordinates, 0, cv::Scalar(255), cv::FILLED, 8 );
 
                 //get the resulting roi onto black image
-
                 proc = imgMat_flipped.clone();
                 proc.copyTo(result, mask);
 
@@ -419,10 +411,10 @@ public:
 
                 if(patternfound)
                 {
-                    //cornerSubPix(tmpImg, corners, cv::Size(11, 11), cv::Size(-1, -1),
+                    //cornerSubPix(result, corners, cv::Size(11, 11), cv::Size(-1, -1),
                     //cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, 0.1));
 
-                    //drawChessboardCorners(imgToSend_flipped, patternsize, cv::Mat(corners), patternfound);
+                    //drawChessboardCorners(imgMat_flipped, patternsize, cv::Mat(corners), patternfound);
 
                     //compare images
                     cv::compare(result, calibData[indexCalib].resultImage, finalImage, cv::CMP_EQ);
