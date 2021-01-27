@@ -70,6 +70,9 @@ class Processing : public yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::P
     cv::Mat imgMat;
     cv::Mat dispMat;
     cv::Mat result;
+    cv::Mat imgMatRight;
+    cv::Mat imgMat_flipped;
+    cv::Mat finalImage;
 
     std::string fileNamePath;
     std::string filePath;
@@ -197,11 +200,11 @@ public:
         rpcClient.open("/"+moduleName+"/rpcClient");
         templOutPort.open("/"+moduleName+"/template:o");
 
-        //yarp::os::Network::connect("/icub/cam/left", BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> >::getName().c_str());
-        //yarp::os::Network::connect("/icub/cam/right", inPortRight.getName().c_str());
-        //yarp::os::Network::connect(dispOutPort.getName().c_str(), "/display");
-        //yarp::os::Network::connect(templOutPort.getName().c_str(), "/templImage");
-        //yarp::os::Network::connect(rpcClient.getName().c_str(), "/yarpdataplayer/rpc:i");
+        yarp::os::Network::connect("/icub/cam/left", BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> >::getName().c_str());
+        yarp::os::Network::connect("/icub/cam/right", inPortRight.getName().c_str());
+        yarp::os::Network::connect(dispOutPort.getName().c_str(), "/display");
+        yarp::os::Network::connect(templOutPort.getName().c_str(), "/templImage");
+        yarp::os::Network::connect(rpcClient.getName().c_str(), "/yarpdataplayer/rpc:i");
 
         sendIndex = -1;
         indexCalib = 0;
@@ -355,6 +358,8 @@ public:
     {
         if (isFileValid && configDone)
         {
+            const std::lock_guard<std::mutex> lock(mtx);
+            
             yarp::sig::ImageOf<yarp::sig::PixelRgb> &outImageLeft  = outPortLeft.prepare();
             yarp::sig::ImageOf<yarp::sig::PixelRgb> &outImageRight  = outPortRight.prepare();
             yarp::sig::ImageOf<yarp::sig::PixelRgb> &dispImage  = dispOutPort.prepare();
@@ -370,21 +375,15 @@ public:
 
             yarp::sig::ImageOf<yarp::sig::PixelRgb> *rightImage = inPortRight.read();
 
-            cv::Mat imgMatRight =  yarp::cv::toCvMat(*rightImage);
-
-            cv::Mat imgToSend_flipped;
-            cv::flip(yarp::cv::toCvMat(inImage), imgToSend_flipped, 1);
-
+            imgMatRight =  yarp::cv::toCvMat(*rightImage);
+            
             imgMat = yarp::cv::toCvMat(inImage);
 
-            cv::Mat imgMat_flipped;
             cv::flip(imgMat, imgMat_flipped, 1);
-
-            dispMat = imgMat_flipped.clone();
 
             if (!completedCalibration)
             {
-                cv::Mat mask(imgMat.rows, imgMat.cols, CV_8UC1, cv::Scalar(0));
+                cv::Mat mask(imgMat_flipped.rows, imgMat_flipped.cols, CV_8UC1, cv::Scalar(0));
 
                 //get coordinates
                 std::vector< std::vector<cv::Point> >  coordinates;
@@ -400,20 +399,16 @@ public:
                 //get the resulting roi onto black image
                 imgMat_flipped.copyTo(result, mask);
 
-                cvtColor(result, result, cv::COLOR_BGR2GRAY);
+                cvtColor(result, result, cv::COLOR_RGB2GRAY);
 
-                cv::Size patternsize(10,7); //interior number of corners
+                cv::Size patternsize(8,6); //interior number of corners
 
                 std::vector<cv::Point2f> corners; //this will be filled by the detected corners
 
-                cv::Mat tmpImg; //= result;
-                result.copyTo(tmpImg, mask);
+                bool patternfound = findChessboardCorners(result, patternsize, corners,
+                                    cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE
+                                    | cv::CALIB_CB_FAST_CHECK);
 
-//                bool patternfound = findChessboardCorners(tmpImg, patternsize, corners,
-//                                    cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE
-//                                    | cv::CALIB_CB_FAST_CHECK);
-
-                bool patternfound = true;
                 cv::threshold(result, result, 100, 255, cv::THRESH_BINARY);
                 cv::threshold(calibData[indexCalib].resultImage,calibData[indexCalib].resultImage, 100, 255, cv::THRESH_BINARY);
                 
@@ -422,10 +417,10 @@ public:
                     //cornerSubPix(tmpImg, corners, cv::Size(11, 11), cv::Size(-1, -1),
                     //cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, 0.1));
 
-                    //drawChessboardCorners(dispMat, patternsize, cv::Mat(corners), patternfound);
+                    //drawChessboardCorners(imgToSend_flipped, patternsize, cv::Mat(corners), patternfound);
 
                     //compare images
-                    cv::Mat finalImage;
+                   
                     cv::compare(result, calibData[indexCalib].resultImage, finalImage, cv::CMP_EQ);
                     bitwise_not(finalImage,finalImage);
 
@@ -450,29 +445,28 @@ public:
                         //std::string name = "stream" + std::to_string(indexCalib) + ".png";
                         //imwrite(name, result);
 
-                        outImageLeft.resize(imgMat.size().width, imgMat.size().height);
-                        outImageLeft = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imgMat);
+                        outImageLeft.resize(imgMat_flipped.size().width, imgMat_flipped.size().height);
+                        outImageLeft = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imgMatRight);
                         outPortLeft.write();
 
-                        outImageRight.resize(imgMat.size().width, imgMat.size().height);
+                        outImageRight.resize(imgMat_flipped.size().width, imgMat_flipped.size().height);
                         outImageRight = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imgMatRight);
                         outPortRight.write();
-
                     }
                 }
             }
 
             if (isFileValid && !completedCalibration)
             {
-                line(imgToSend_flipped, calibData[indexCalib].topLeft, calibData[indexCalib].topRight, colour, 3);
-                line(imgToSend_flipped, calibData[indexCalib].topRight, calibData[indexCalib].bottomRight, colour, 3);
-                line(imgToSend_flipped, calibData[indexCalib].bottomRight, calibData[indexCalib].bottomLeft, colour, 3);
-                line(imgToSend_flipped, calibData[indexCalib].bottomLeft, calibData[indexCalib].topLeft, colour, 3);
+                line(imgMat_flipped, calibData[indexCalib].topLeft, calibData[indexCalib].topRight, colour, 3);
+                line(imgMat_flipped, calibData[indexCalib].topRight, calibData[indexCalib].bottomRight, colour, 3);
+                line(imgMat_flipped, calibData[indexCalib].bottomRight, calibData[indexCalib].bottomLeft, colour, 3);
+                line(imgMat_flipped, calibData[indexCalib].bottomLeft, calibData[indexCalib].topLeft, colour, 3);
 
                 if (displayOverlay)
                 {
                     calibData[indexCalib].resultImage = calibData[indexCalib].resultImage - cv::Scalar(0, 0, 0, 127);
-                    overlayImage(&imgToSend_flipped, &calibData[indexCalib].resultImage, cv::Point());
+                    overlayImage(&imgMat_flipped, &calibData[indexCalib].resultImage, cv::Point());
                 }
 
                 if (percentage >= 0 && percentage < 1 )
@@ -484,7 +478,7 @@ public:
 
                 int percent = (int)percentage;
 
-                setLabel(imgToSend_flipped, std::to_string(percent), cvPoint(15,20), colour);
+                setLabel(imgMat_flipped, std::to_string(percent), cvPoint(15,20), colour);
             }
 
             outTargets.clear();
@@ -492,8 +486,8 @@ public:
             if (outTargets.size() >0 )
                 targetPort.write();
 
-            dispImage.resize(imgToSend_flipped.size().width, imgToSend_flipped.size().height);
-            dispImage = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imgToSend_flipped);
+            dispImage.resize(imgMat_flipped.size().width, imgMat_flipped.size().height);
+            dispImage = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imgMat_flipped);
             dispOutPort.write();
 
             if (sendIndex < indexCalib && !completedCalibration)
@@ -520,7 +514,7 @@ public:
                 reply.clear();
                 cmd.addString("play");
                 rpcClient.write(cmd,reply);
-
+                 
                 if (indexCalib <= totalCalibs-1)
                     indexCalib ++;
 
