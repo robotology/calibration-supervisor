@@ -67,11 +67,10 @@ class Processing : public yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::P
 
     yarp::os::RpcClient rpcClient;
 
-    cv::Mat imgMat;
-    cv::Mat dispMat;
-    cv::Mat result;
+    cv::Mat imgMatLeft;
     cv::Mat imgMatRight;
     cv::Mat imgMat_flipped;
+    cv::Mat result;
     cv::Mat finalImage;
     cv::Mat proc;
 
@@ -375,9 +374,9 @@ public:
 
             imgMatRight =  yarp::cv::toCvMat(*rightImage);
 
-            imgMat = yarp::cv::toCvMat(inImage);
+            imgMatLeft = yarp::cv::toCvMat(inImage);
 
-            cv::flip(imgMat, imgMat_flipped, 1);
+            cv::flip(imgMatLeft, imgMat_flipped, 1);
 
             if (!completedCalibration)
             {
@@ -442,7 +441,7 @@ public:
                         //imwrite(name, result);
 
                         outImageLeft.resize(imgMat_flipped.size().width, imgMat_flipped.size().height);
-                        outImageLeft = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imgMat);
+                        outImageLeft = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imgMatLeft);
                         outPortLeft.write();
 
                         outImageRight.resize(imgMat_flipped.size().width, imgMat_flipped.size().height);
