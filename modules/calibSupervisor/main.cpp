@@ -73,6 +73,9 @@ class Processing : public yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::P
     cv::Mat imgMatRight;
     cv::Mat imgMat_flipped;
     cv::Mat finalImage;
+    cv::Mat proc;
+
+    std::vector<cv::Point2f> corners;
 
     std::string fileNamePath;
     std::string filePath;
@@ -243,9 +246,8 @@ public:
                 calibData[index].topRight = cv::Point(b.get(0).asList()->get(2).asInt(), b.get(0).asList()->get(3).asInt());
                 calibData[index].bottomLeft = cv::Point(b.get(1).asList()->get(0).asInt(), b.get(1).asList()->get(1).asInt());
                 calibData[index].bottomRight = cv::Point(b.get(1).asList()->get(2).asInt(), b.get(1).asList()->get(3).asInt());
-                
                 calibData[index].imageName = b.get(2).asList()->get(0).asString();
-                
+
                 index ++;
             }
             str.close();
@@ -261,7 +263,7 @@ public:
             for (size_t x = 0; x < totalCalibs; x++)
             {
                 std::string path = filePath + calibData[x].imageName;
-                
+
                 //load original image
                 cv::Mat tmp_img = cv::imread(path, cv::IMREAD_UNCHANGED);
                 cv::flip(tmp_img, calibData[x].image, 1); 
@@ -276,7 +278,7 @@ public:
                    yDebug() << "Could not open or find the images!";
                    return -1;
                 }
-                
+
                 //create the mask and the resuting image
                 calibData[x].imageMask = cv::Mat::zeros(cv::Size(calibData[x].image.size()), CV_8UC1);
                 calibData[x].resultImage = cv::Mat::zeros(cv::Size(calibData[x].image.size()), calibData[x].image.type());
@@ -296,10 +298,12 @@ public:
                 calibData[x].image.copyTo(calibData[x].resultImage, calibData[x].imageMask);
                 cvtColor(calibData[x].resultImage, calibData[x].resultImage, cv::COLOR_BGR2GRAY);
 
-                std::string calibname = "calib" + std::to_string(indexCalib) + ".png";
-                imwrite(calibname, calibData[indexCalib].resultImage);
-            }
+                //std::string calibname = "calib" + std::to_string(indexCalib) + ".png";
+                //imwrite(calibname, calibData[indexCalib].resultImage);
+                }
         }
+        
+        
         configDone = true;
         return isFileValid;
     }
@@ -376,10 +380,11 @@ public:
             yarp::sig::ImageOf<yarp::sig::PixelRgb> *rightImage = inPortRight.read();
 
             imgMatRight =  yarp::cv::toCvMat(*rightImage);
-            
+
             imgMat = yarp::cv::toCvMat(inImage);
 
             cv::flip(imgMat, imgMat_flipped, 1);
+        
 
             if (!completedCalibration)
             {
@@ -394,24 +399,24 @@ public:
                 coordinates[0].push_back(calibData[indexCalib].bottomLeft);
 
                 //draw mask
-                drawContours( mask, coordinates,0, cv::Scalar(255), cv::FILLED, 8 );
+                drawContours( mask, coordinates, 0, cv::Scalar(255), cv::FILLED, 8 );
 
                 //get the resulting roi onto black image
-                imgMat_flipped.copyTo(result, mask);
+
+                proc = imgMat_flipped.clone();
+                proc.copyTo(result, mask);
 
                 cvtColor(result, result, cv::COLOR_RGB2GRAY);
 
                 cv::Size patternsize(8,6); //interior number of corners
 
-                std::vector<cv::Point2f> corners; //this will be filled by the detected corners
-
                 bool patternfound = findChessboardCorners(result, patternsize, corners,
-                                    cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE
-                                    | cv::CALIB_CB_FAST_CHECK);
+                                     cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE
+                                     | cv::CALIB_CB_FAST_CHECK);
 
                 cv::threshold(result, result, 100, 255, cv::THRESH_BINARY);
                 cv::threshold(calibData[indexCalib].resultImage,calibData[indexCalib].resultImage, 100, 255, cv::THRESH_BINARY);
-                
+
                 if(patternfound)
                 {
                     //cornerSubPix(tmpImg, corners, cv::Size(11, 11), cv::Size(-1, -1),
@@ -420,7 +425,6 @@ public:
                     //drawChessboardCorners(imgToSend_flipped, patternsize, cv::Mat(corners), patternfound);
 
                     //compare images
-                   
                     cv::compare(result, calibData[indexCalib].resultImage, finalImage, cv::CMP_EQ);
                     bitwise_not(finalImage,finalImage);
 
@@ -446,7 +450,7 @@ public:
                         //imwrite(name, result);
 
                         outImageLeft.resize(imgMat_flipped.size().width, imgMat_flipped.size().height);
-                        outImageLeft = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imgMatRight);
+                        outImageLeft = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imgMat);
                         outPortLeft.write();
 
                         outImageRight.resize(imgMat_flipped.size().width, imgMat_flipped.size().height);
