@@ -61,7 +61,7 @@ class Processing : public yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::P
     yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> >   inPortRight;
     yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> >   outPortLeft;
     yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> >   outPortRight;
-    yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> >   dispOutPort;
+    yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelBgr> >   dispOutPort;
     yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelMono> >   templOutPort;
     yarp::os::BufferedPort<yarp::os::Bottle>  targetPort;
 
@@ -360,7 +360,7 @@ public:
             
             yarp::sig::ImageOf<yarp::sig::PixelRgb> &outImageLeft  = outPortLeft.prepare();
             yarp::sig::ImageOf<yarp::sig::PixelRgb> &outImageRight  = outPortRight.prepare();
-            yarp::sig::ImageOf<yarp::sig::PixelRgb> &dispImage  = dispOutPort.prepare();
+            yarp::sig::ImageOf<yarp::sig::PixelBgr> &dispImage  = dispOutPort.prepare();
             yarp::sig::ImageOf<yarp::sig::PixelMono> &templImage  = templOutPort.prepare();
 
             yarp::os::Bottle &outTargets = targetPort.prepare();
@@ -414,7 +414,7 @@ public:
                     //cornerSubPix(result, corners, cv::Size(11, 11), cv::Size(-1, -1),
                     //cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, 0.1));
 
-                    //drawChessboardCorners(imgMat_flipped, patternsize, cv::Mat(corners), patternfound);
+                    drawChessboardCorners(imgMat_flipped, patternsize, cv::Mat(corners), patternfound);
 
                     //compare images
                     cv::compare(result, calibData[indexCalib].resultImage, finalImage, cv::CMP_EQ);
@@ -483,7 +483,7 @@ public:
                 targetPort.write();
 
             dispImage.resize(imgMat_flipped.size().width, imgMat_flipped.size().height);
-            dispImage = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imgMat_flipped);
+            dispImage = yarp::cv::fromCvMat<yarp::sig::PixelBgr>(imgMat_flipped);
             dispOutPort.write();
 
             if (sendIndex < indexCalib && !completedCalibration)
