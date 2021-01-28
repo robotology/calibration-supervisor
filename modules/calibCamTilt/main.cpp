@@ -58,11 +58,91 @@ using namespace cv;
 using namespace cv::xfeatures2d;
 using namespace std;
 
+cv::Point base;
+cv::Rect rect;
+bool bDraw;
+
+struct MouseParams
+{
+    cv::Rect rect;
+    bool bDraw;
+    cv::Mat layer;
+    cv::Mat image;
+};
+
+void onMouse(int event, int x, int y, int flags, void* params)
+{
+    MouseParams *mp = (MouseParams*)params;
+    if ( event == EVENT_LBUTTONDOWN )
+    {
+        yInfo() << "Left button of the mouse is clicked - position (" << x << "," << y << ")";
+
+        base.x = x;
+        base.y = y;
+
+        //Init your rect
+        rect.x = x;
+        rect.y = y;
+        rect.width = 0;
+        rect.height = 0;
+        bDraw = true;
+    }
+    else if ( event == EVENT_MOUSEMOVE )
+    {
+//        yInfo() << "Mouse move over the window - position (" << x << ", " << y << ")";
+
+        //If drawing, update rect width and height
+        if(!bDraw) return;
+
+        int dx = abs(rect.x - x);
+        int dy = abs(rect.y - y);
+
+        if(x < base.x) {
+            rect.x = x;
+            rect.width = abs(x - base.x);
+        } else {
+            rect.width = dx;
+        }
+
+        if(y < base.y) {
+            rect.y = y;
+            rect.height = abs(y - base.y);
+        } else {
+            rect.height = dy;
+        }
+
+        //Refresh
+        mp->image = mp->layer.clone();
+        rectangle(mp->image, rect, Scalar(255,0,0),3);
+        imshow("Select ROI", mp->image);
+
+        mp->rect.x = rect.x;
+        mp->rect.y = rect.y;
+        mp->rect.width = rect.width;
+        mp->rect.height = rect.height;
+    }
+    else if ( event == EVENT_LBUTTONUP)
+    {
+        yInfo() << "Left button released";
+
+        //Save rect, draw it on layer
+        rectangle(mp->layer, rect, Scalar(0,255,0),3);
+
+        rect = Rect();
+        bDraw = false;
+
+        //Refresh
+        mp->image = mp->layer.clone();
+        rectangle(mp->image, rect, Scalar(255,0,0),3);
+        imshow("Select ROI", mp->image);
+    }
+    mp->bDraw = bDraw;
+}
 
 
 /********************************************************/
 class Processing : public yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> >
-{
+{   
     std::string moduleName;  
     
     yarp::os::RpcServer handlerPort;
@@ -77,7 +157,6 @@ class Processing : public yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::P
     int top, bottom, left, right;
     cv::Point arrowDown_pt1_last{0,0}, arrowDown_pt2_last{0,0}, arrowUp_pt1_last{0,0}, arrowUp_pt2_last{0,0};
     int centroid_diff_last{-1};
-  
 
 public:
     /********************************************************/
@@ -136,7 +215,7 @@ public:
 
         cv::Mat left_scene = yarp::cv::toCvMat(img);  
         cv::Mat right_scene = yarp::cv::toCvMat(*right_img);
-       
+
         std::lock_guard<std::mutex> lg(mtx);
 
         // For now the right image is the left image shifted (only to test the module)
@@ -146,25 +225,43 @@ public:
         cv::Mat sft_left_scene = cv::Mat::zeros(left_scene.size(), left_scene.type());
         left_scene(cv::Rect(0,shift_left, left_scene.cols,left_scene.rows-shift_left)).copyTo(sft_left_scene(cv::Rect(0,0,left_scene.cols,left_scene.rows-shift_left)));
 
-
         if (!select_ROI) {
+
+            MouseParams mp;
+            mp.bDraw = true;
+            mp.rect = cv::Rect();
+            mp.layer = left_scene.clone();
+            mp.image = left_scene.clone();
             namedWindow("Select ROI", 2);
+
+            //set the callback function for any mouse event
+            setMouseCallback("Select ROI", onMouse, (void*)&mp);
+            while (mp.bDraw)
+            {
+                imshow("Select ROI", left_scene);
+                int k = waitKey(500);
+                if (k == 27)
+                {
+                    break;
+                }
+            }
+
             //resizeWindow("Select ROI",320,240);
-            Rect2d templ = selectROI("Select ROI", left_scene);  
-            left_scene(templ).copyTo(obj_template); // Copying otherwise the template might change
+//            Rect2d templ = selectROI("Select ROI", left_scene);
+            left_scene(mp.rect).copyTo(obj_template); // Copying otherwise the template might change
             if (obj_template.empty()) {
                 yWarning() << "The template selected was empty";
                 return;
             }
-            imshow("Crop image",obj_template);
-            waitKey(0);
+//            imshow("Crop image",obj_template);
+//            waitKey(0);
             select_ROI = true;
         }
          
-        out_left_scene = CameraPanCalibration(obj_template, sft_left_scene, &left_c );
+        out_left_scene = getCentroid(obj_template, sft_left_scene, &left_c );
         if (select_ROI)
         {
-            out_right_scene = CameraPanCalibration(obj_template, sft_right_scene, &right_c );
+            out_right_scene = getCentroid(obj_template, sft_right_scene, &right_c );
         
             //double centroid_diff = cv::norm(cv::Mat(left_c),cv::Mat(right_c));
             int centroid_diff = abs(left_c.y-right_c.y);
@@ -298,7 +395,7 @@ public:
     }
 
     /********************************************************/
-    cv::Mat CameraPanCalibration(const cv::Mat &image_obj, const cv::Mat &image_scene, cv::Point* center )
+    cv::Mat getCentroid(const cv::Mat &image_obj, const cv::Mat &image_scene, cv::Point* center )
     {  
   
         //Check whether images have been loaded
