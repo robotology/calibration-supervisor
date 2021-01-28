@@ -4,8 +4,6 @@
 
 project(movePattern)
 
-find_package(OpenCV REQUIRED)
-
 add_executable(${PROJECT_NAME} main.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR} ${OpenCV_INCLUDE_DIRS})
 target_compile_definitions(${PROJECT_NAME} PRIVATE _USE_MATH_DEFINES)

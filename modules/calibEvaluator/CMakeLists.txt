@@ -4,8 +4,6 @@
 
 project(calibEvaluator)
 
-find_package(OpenCV REQUIRED)
-
 yarp_add_idl(IDL_GEN_FILES ${PROJECT_NAME}.thrift)
 
 set(idl ${PROJECT_NAME}.thrift)

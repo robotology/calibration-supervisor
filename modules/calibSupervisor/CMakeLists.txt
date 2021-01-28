@@ -5,8 +5,6 @@
 cmake_minimum_required(VERSION 2.8.9)
 project(calibSupervisor)
 
-
-find_package(OpenCV REQUIRED)
 list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 
