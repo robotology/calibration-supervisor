@@ -1,0 +1,50 @@
+<application>
+<name>Calibration Camera Tilt App</name>
+
+    <module>
+        <name>calibCamTilt</name>
+        <node>localhost</node>
+    </module>
+    
+    <module>
+        <name>yarpdataplayer</name>
+        <node>localhost</node>
+    </module>
+        
+     <module>
+        <name>yarpview</name>
+        <parameters>--name /leftImageOutput</parameters>
+        <node>localhost</node>
+    </module>
+        
+     <module>
+        <name>yarpview</name>
+        <parameters>--name /rightImageOutput</parameters>
+        <node>localhost</node>
+    </module>
+     
+     <connection>
+        <from>/calibCamTilt/leftImage:o</from>
+        <to>/leftImageOutput</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+         
+     <connection>
+        <from>/calibCamTilt/rightImage:o</from>
+        <to>/rightImageOutput</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+    
+    <connection>
+        <from>/icub/cam/left</from>
+        <to>/calibCamTilt/leftImage:i</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+        
+    <connection>
+        <from>/icub/cam/right</from>
+        <to>/calibCamTilt/rightImage:i</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+  
+</application>

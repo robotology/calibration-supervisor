@@ -4,3 +4,4 @@
 add_subdirectory(movePattern)
 add_subdirectory(calibSupervisor)
 add_subdirectory(calibEvaluator)
+add_subdirectory(calibCamTilt)
