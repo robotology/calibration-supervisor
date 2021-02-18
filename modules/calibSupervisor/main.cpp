@@ -73,6 +73,7 @@ class Processing : public yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::P
     cv::Mat result;
     cv::Mat finalImage;
     cv::Mat proc;
+    cv::Mat testImg;
 
     std::vector<cv::Point2f> corners;
 
@@ -297,6 +298,24 @@ public:
                 calibData[x].image.copyTo(calibData[x].resultImage, calibData[x].imageMask);
             }
         }
+
+//        testImg=cv::imread("/home/vvasco/new-evt-stream.png", cv::IMREAD_GRAYSCALE);
+//        int dilate_niter = 1;
+//        int erode_niter = 1;
+
+//        int morph_size = 1; // kernel size praticamente
+//        int open_size = 1;
+
+//         cv::Mat element = cv::getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 5, 5 ), cv::Point( -1, -1 ) );
+//         cv::morphologyEx( testImg, testImg, cv::MORPH_CLOSE, element );
+
+//         cv::Mat element_open = cv::getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 3, 3 ), cv::Point( -1, -1 ) );
+//         cv::morphologyEx( testImg, testImg, cv::MORPH_OPEN, element_open );
+
+        //cv::Mat(5, 5, CV_8UC1)
+//        cv::dilate(testImg, testImg, cv::Mat(), cv::Point(-1,-1), dilate_niter, cv::BORDER_CONSTANT, cv::morphologyDefaultBorderValue());
+//        cv::erode(testImg, testImg, cv::Mat(), cv::Point(-1,-1), erode_niter, cv::BORDER_ISOLATED, cv::morphologyDefaultBorderValue());
+
         configDone = true;
         return isFileValid;
     }
@@ -393,9 +412,19 @@ public:
                 //draw mask
                 drawContours( mask, coordinates, 0, cv::Scalar(255), cv::FILLED, 8 );
 
+                //filter
+                cv::Mat element = cv::getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 5, 5 ), cv::Point( -1, -1 ) );
+                cv::morphologyEx( result, imgMat_flipped, cv::MORPH_CLOSE, element );
+
                 //get the resulting roi onto black image
                 proc = imgMat_flipped.clone();
                 proc.copyTo(result, mask);
+
+//                std::string calibname = "calib" + std::to_string(indexCalib) + ".png";
+//                imwrite(calibname, calibData[indexCalib].resultImage);
+
+//                std::string name = "stream" + std::to_string(indexCalib) + ".png";
+//                imwrite(name, result);
 
                 cvtColor(result, result, cv::COLOR_RGB2GRAY);
 
@@ -410,6 +439,8 @@ public:
 
                 if(patternfound)
                 {
+                    yDebug()<<"Pattern found!";
+
                     //cornerSubPix(result, corners, cv::Size(11, 11), cv::Size(-1, -1),
                     //cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, 0.1));
 
