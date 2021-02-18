@@ -394,7 +394,6 @@ public:
             imgMatRight =  yarp::cv::toCvMat(*rightImage);
 
             imgMatLeft = yarp::cv::toCvMat(inImage);
-
             cv::flip(imgMatLeft, imgMat_flipped, 1);
 
             if (!completedCalibration)
@@ -412,13 +411,13 @@ public:
                 //draw mask
                 drawContours( mask, coordinates, 0, cv::Scalar(255), cv::FILLED, 8 );
 
-                //filter
-                cv::Mat element = cv::getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 5, 5 ), cv::Point( -1, -1 ) );
-                cv::morphologyEx( result, imgMat_flipped, cv::MORPH_CLOSE, element );
-
                 //get the resulting roi onto black image
                 proc = imgMat_flipped.clone();
                 proc.copyTo(result, mask);
+
+                //filter
+                cv::Mat element = cv::getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 5, 5 ), cv::Point( -1, -1 ) );
+                cv::morphologyEx( result, result, cv::MORPH_CLOSE, element );
 
 //                std::string calibname = "calib" + std::to_string(indexCalib) + ".png";
 //                imwrite(calibname, calibData[indexCalib].resultImage);
@@ -455,6 +454,16 @@ public:
                     percentage = ( (double)(finalImage.rows * finalImage.cols) - nonZeroCompare) / (finalImage.rows * finalImage.cols);
 
                     yDebug() << "Percentage" << percentage << "nonZeroCompare" << nonZeroCompare;
+
+                    std::string comparename = "compare" + std::to_string(indexCalib) + ".png";
+                    imwrite(comparename, finalImage);
+
+                    std::string calibname = "calib" + std::to_string(indexCalib) + ".png";
+                    imwrite(calibname, calibData[indexCalib].resultImage);
+
+                    std::string name = "stream" + std::to_string(indexCalib) + ".png";
+                    imwrite(name, result);
+
 
                     if(percentage >= (percentageThresh / 100) ) {
 
