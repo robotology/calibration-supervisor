@@ -55,6 +55,8 @@ struct calibrationData
 class Processing : public yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> >
 {
     std::string moduleName;
+    bool stereo;
+    bool eventCam;
 
     yarp::os::RpcServer handlerPort;
 
@@ -69,13 +71,13 @@ class Processing : public yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::P
 
     cv::Mat imgMatLeft;
     cv::Mat imgMatRight;
-    cv::Mat imgMat_flipped;
+    cv::Mat imgMatLeft_flipped;
     cv::Mat result;
     cv::Mat finalImage;
     cv::Mat proc;
-    cv::Mat testImg;
 
-    std::vector<cv::Point2f> corners;
+    std::vector<cv::Point2f> cornersL;
+    std::vector<cv::Point2f> cornersR;
 
     std::string fileNamePath;
     std::string filePath;
@@ -105,11 +107,14 @@ class Processing : public yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::P
 public:
     /********************************************************/
 
-    Processing( const std::string &moduleName, const std::string &fileNamePath, const std::string &filePath )
+    Processing( const std::string &moduleName, const std::string &fileNamePath, const std::string &filePath, const bool &stereo,
+                const bool &eventCam)
     {
         this->moduleName = moduleName;
         this->fileNamePath = fileNamePath;
         this->filePath = filePath;
+        this->stereo = stereo;
+        this->eventCam = eventCam;
         configDone = false;
     }
 
@@ -390,15 +395,14 @@ public:
             outImageRight.zero();
 
             yarp::sig::ImageOf<yarp::sig::PixelRgb> *rightImage = inPortRight.read();
-
             imgMatRight =  yarp::cv::toCvMat(*rightImage);
 
             imgMatLeft = yarp::cv::toCvMat(inImage);
-            cv::flip(imgMatLeft, imgMat_flipped, 1);
+            cv::flip(imgMatLeft, imgMatLeft_flipped, 1);
 
             if (!completedCalibration)
             {
-                cv::Mat mask(imgMat_flipped.rows, imgMat_flipped.cols, CV_8UC1, cv::Scalar(0));
+                cv::Mat mask(imgMatLeft_flipped.rows, imgMatLeft_flipped.cols, CV_8UC1, cv::Scalar(0));
 
                 //get coordinates
                 std::vector< std::vector<cv::Point> >  coordinates;
@@ -411,39 +415,36 @@ public:
                 //draw mask
                 drawContours( mask, coordinates, 0, cv::Scalar(255), cv::FILLED, 8 );
 
+                if (eventCam)
+                {
+                    //filter salt and pepper noisy events and fill squares
+                    cv::Mat element = cv::getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 5, 5 ), cv::Point( -1, -1 ) );
+                    cv::morphologyEx( imgMatLeft_flipped, imgMatLeft_flipped, cv::MORPH_CLOSE, element );
+                }
+
                 //get the resulting roi onto black image
-                proc = imgMat_flipped.clone();
+                proc = imgMatLeft_flipped.clone();
                 proc.copyTo(result, mask);
-
-                //filter
-                cv::Mat element = cv::getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 5, 5 ), cv::Point( -1, -1 ) );
-                cv::morphologyEx( result, result, cv::MORPH_CLOSE, element );
-
-//                std::string calibname = "calib" + std::to_string(indexCalib) + ".png";
-//                imwrite(calibname, calibData[indexCalib].resultImage);
-
-//                std::string name = "stream" + std::to_string(indexCalib) + ".png";
-//                imwrite(name, result);
 
                 cvtColor(result, result, cv::COLOR_RGB2GRAY);
 
                 cv::Size patternsize(8,6); //interior number of corners
 
-                bool patternfound = findChessboardCorners(result, patternsize, corners,
-                                     cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE
-                                     | cv::CALIB_CB_FAST_CHECK);
+                //only do the matching if the chessboard is inside the bounding box
+                bool proceed = findChessboardCorners(result, patternsize, cornersL,
+                                                           cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE
+                                                           | cv::CALIB_CB_FAST_CHECK);
 
                 cv::threshold(result, result, 100, 255, cv::THRESH_BINARY);
                 cv::threshold(calibData[indexCalib].resultImage,calibData[indexCalib].resultImage, 100, 255, cv::THRESH_BINARY);
-
-                if(patternfound)
+                if(proceed)
                 {
                     yDebug()<<"Pattern found!";
 
                     //cornerSubPix(result, corners, cv::Size(11, 11), cv::Size(-1, -1),
                     //cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, 0.1));
 
-                    drawChessboardCorners(imgMat_flipped, patternsize, cv::Mat(corners), patternfound);
+                    drawChessboardCorners(imgMatLeft_flipped, patternsize, cv::Mat(cornersL), proceed);
 
                     //compare images
                     cv::compare(result, calibData[indexCalib].resultImage, finalImage, cv::CMP_EQ);
@@ -455,17 +456,25 @@ public:
 
                     yDebug() << "Percentage" << percentage << "nonZeroCompare" << nonZeroCompare;
 
-                    std::string comparename = "compare" + std::to_string(indexCalib) + ".png";
-                    imwrite(comparename, finalImage);
 
-                    std::string calibname = "calib" + std::to_string(indexCalib) + ".png";
-                    imwrite(calibname, calibData[indexCalib].resultImage);
+                    bool patternfoundL = findChessboardCorners(imgMatLeft, patternsize, cornersL,
+                                                               cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE
+                                                               | cv::CALIB_CB_FAST_CHECK);
+                    bool ok_to_send = patternfoundL;
+                    if (stereo)
+                    {
+                        bool patternfoundR = findChessboardCorners(imgMatRight, patternsize, cornersR,
+                                                                   cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE
+                                                                   | cv::CALIB_CB_FAST_CHECK);
+                        ok_to_send = patternfoundL && patternfoundR;
+                    }
 
-                    std::string name = "stream" + std::to_string(indexCalib) + ".png";
-                    imwrite(name, result);
+                    if (ok_to_send)
+                    {
+                        yInfo() << "We can send these images";
+                    }
 
-
-                    if(percentage >= (percentageThresh / 100) ) {
+                    if(percentage >= (percentageThresh / 100) && ok_to_send) {
 
                         colour = { 1, 218, 30 };
 
@@ -480,11 +489,15 @@ public:
                         //std::string name = "stream" + std::to_string(indexCalib) + ".png";
                         //imwrite(name, result);
 
-                        outImageLeft.resize(imgMat_flipped.size().width, imgMat_flipped.size().height);
+//                        std::string name = "img-left" + std::to_string(indexCalib) + ".png";
+//                        imwrite(name, imgMatLeft_flipped);
+
+//                        cvtColor(result, result, cv::COLOR_GRAY2RGB);
+                        outImageLeft.resize(imgMatLeft.size().width, imgMatLeft.size().height);
                         outImageLeft = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imgMatLeft);
                         outPortLeft.write();
 
-                        outImageRight.resize(imgMat_flipped.size().width, imgMat_flipped.size().height);
+                        outImageRight.resize(imgMatRight.size().width, imgMatRight.size().height);
                         outImageRight = yarp::cv::fromCvMat<yarp::sig::PixelRgb>(imgMatRight);
                         outPortRight.write();
                     }
@@ -493,15 +506,15 @@ public:
 
             if (isFileValid && !completedCalibration)
             {
-                line(imgMat_flipped, calibData[indexCalib].topLeft, calibData[indexCalib].topRight, colour, 3);
-                line(imgMat_flipped, calibData[indexCalib].topRight, calibData[indexCalib].bottomRight, colour, 3);
-                line(imgMat_flipped, calibData[indexCalib].bottomRight, calibData[indexCalib].bottomLeft, colour, 3);
-                line(imgMat_flipped, calibData[indexCalib].bottomLeft, calibData[indexCalib].topLeft, colour, 3);
+                line(imgMatLeft_flipped, calibData[indexCalib].topLeft, calibData[indexCalib].topRight, colour, 3);
+                line(imgMatLeft_flipped, calibData[indexCalib].topRight, calibData[indexCalib].bottomRight, colour, 3);
+                line(imgMatLeft_flipped, calibData[indexCalib].bottomRight, calibData[indexCalib].bottomLeft, colour, 3);
+                line(imgMatLeft_flipped, calibData[indexCalib].bottomLeft, calibData[indexCalib].topLeft, colour, 3);
 
                 if (displayOverlay)
                 {
                     calibData[indexCalib].resultImage = calibData[indexCalib].resultImage - cv::Scalar(0, 0, 0, 127);
-                    overlayImage(&imgMat_flipped, &calibData[indexCalib].resultImage, cv::Point());
+                    overlayImage(&imgMatLeft_flipped, &calibData[indexCalib].resultImage, cv::Point());
                 }
 
                 if (percentage >= 0 && percentage < 1 )
@@ -513,7 +526,7 @@ public:
 
                 int percent = (int)percentage;
 
-                setLabel(imgMat_flipped, std::to_string(percent), cvPoint(15,20), colour);
+                setLabel(imgMatLeft_flipped, std::to_string(percent), cvPoint(15,20), colour);
             }
 
             outTargets.clear();
@@ -521,8 +534,8 @@ public:
             if (outTargets.size() >0 )
                 targetPort.write();
 
-            dispImage.resize(imgMat_flipped.size().width, imgMat_flipped.size().height);
-            dispImage = yarp::cv::fromCvMat<yarp::sig::PixelBgr>(imgMat_flipped);
+            dispImage.resize(imgMatLeft_flipped.size().width, imgMatLeft_flipped.size().height);
+            dispImage = yarp::cv::fromCvMat<yarp::sig::PixelBgr>(imgMatLeft_flipped);
             dispOutPort.write();
 
             if (sendIndex < indexCalib && !completedCalibration)
@@ -589,6 +602,8 @@ public:
         this->rf=&rf;
         std::string moduleName = rf.check("name", yarp::os::Value("calibSupervisor"), "module name (string)").asString();
         std::string fileName = rf.check("file", yarp::os::Value("calibrations.ini"), "file name (string)").asString();
+        bool stereo = rf.check("stereo", yarp::os::Value(true),"true for stereo calibration (bool)").asBool();
+        bool eventCam = rf.check("eventCam", yarp::os::Value(false),"if true, the pipeline for the event camera is active (bool)").asBool();
         setName(moduleName.c_str());
 
         rpcPort.open(("/"+getName("/rpc")).c_str());
@@ -608,7 +623,7 @@ public:
         yInfo() << "Found file " << fileNamePath;
         yInfo() << "And its filePath  " << filePath;
 
-        processing = new Processing( moduleName, fileNamePath, filePath );
+        processing = new Processing( moduleName, fileNamePath, filePath, stereo, eventCam );
 
         /* now start the thread to do the work */
         processing->open();
