@@ -10,14 +10,14 @@
 
   <module>
       <name>yarpdatadumper</name>
-      <parameters>--name /testsets/rgb-cameras/ideal --type image_png</parameters>
+      <parameters>--name /testsets/event-cameras/ideal --type image_png</parameters>
       <workdir>/home/vvasco/dev/robotology/camera-calibration-supervisor</workdir>
       <node>localhost</node>
   </module>
 
   <module>
       <name>yarpdatadumper</name>
-      <parameters>--name /testsets/rgb-cameras/distorted --type image_png</parameters>
+      <parameters>--name /testsets/event-cameras/distorted --type image_png</parameters>
       <workdir>/home/vvasco/dev/robotology/camera-calibration-supervisor</workdir>
       <node>localhost</node>
   </module>
@@ -72,13 +72,13 @@
 
   <connection>
       <from>/movePattern/gt:o</from>
-      <to>/testsets/rgb-cameras/ideal</to>
+      <to>/testsets/event-cameras/ideal</to>
       <protocol>fast_tcp</protocol>
   </connection>
 
   <connection>
       <from>/movePattern/distorted:o</from>
-      <to>/testsets/rgb-cameras/distorted</to>
+      <to>/testsets/event-cameras/distorted</to>
       <protocol>fast_tcp</protocol>
   </connection>
 </application>
