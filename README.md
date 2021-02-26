@@ -40,7 +40,10 @@ We devised this part entirely in `Gazebo`, through the following steps:
     
     This step was performed by running:
      
-     `find-best-positions-calibration.sh run 200`
+     `find-best-positions-calibration.sh run camera-calibration-best-pos 200`
+
+    _Note: To run the script for event-cameras, you will need to specify a different context:_
+    - `find-best-positions-calibration.sh run camera-calibration-best-pos/event-cameras 200 0.1734 0.13`.
 
 - **Run the calibration**: 
 
@@ -56,7 +59,7 @@ We devised this part entirely in `Gazebo`, through the following steps:
     
     This step was performed by running:
     
-    `create-calibration-test-set.sh run 1 100`
+    `create-calibration-test-set.sh run camera-calibration-best-pos 1 100`
 
     For each set we save the calibration result `outputCalib.ini` and copy it into `camCalib`.  We thus evaluate the quality of the calibration procedure by comparing the undistorted image provided by `camCalib` using the parameters estimated by the calibration procedure and the ground truth image provided by the ideal undistorted camera in `Gazebo`, as shown by the following: 
 
@@ -66,7 +69,11 @@ We devised this part entirely in `Gazebo`, through the following steps:
 
     This step was performed by running:
     
-    `evaluate-calibration.sh run 200`
+    `evaluate-calibration.sh run camera-calibration-best-pos $ROBOT_CODE/camera-calibration-supervisor/testsets/rgb-cameras 200`
+
+    _Note: To run the scripts for event-cameras, you will need to specify a different context:_ 
+    - `create-calibration-test-set.sh run camera-calibration-best-pos/event-cameras 1 100`;
+    - `evaluate-calibration.sh run camera-calibration-best-pos $ROBOT_CODE/camera-calibration-supervisor/testsets/rgb-cameras 200`.
 
 - **Choose the best set of poses**: 
 
