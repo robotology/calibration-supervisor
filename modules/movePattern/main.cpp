@@ -77,11 +77,11 @@ class PatternMover : public RFModule
 
     Matrix pose;
     int count;
-    const double square_size=0.030;
-    const int nhor=8;
-    const double nver=6;
-    const double board_width=nhor*square_size;
-    const double board_height=nver*square_size;
+    int nhor;
+    int nver;
+    double board_width;
+    double board_height;
+    double square_size;
     bool starting,save_result,create_test;
     int dirindex;
     PolyDriver clientGazeCtrl;
@@ -110,6 +110,11 @@ public:
         maxy=rf.check("maxy",Value(0.05)).asDouble();
         maxz=rf.check("maxz",Value(0.0)).asDouble();
         maxangle=(M_PI/180)*rf.check("maxangle",Value(20.0)).asDouble();
+        nhor=rf.check("nhor",Value(8)).asDouble();
+        nver=rf.check("nver",Value(6)).asDouble();
+        board_width=rf.check("board_width",Value(0.24)).asDouble();
+        board_height=rf.check("board_height",Value(0.18)).asDouble();
+        square_size=board_width/nhor;
 
         leftImageInPort.open("/"+moduleName+"/leftImage:i");
         rightImageInPort.open("/"+ moduleName + "/rightImage:i");
@@ -141,15 +146,6 @@ public:
             return false;
         }
 
-        if (random)
-        {
-            pose=generateRandomPoses(nimages,maxx,maxy,maxz,maxangle);
-        }
-        else
-        {
-            pose=generateGridPoses(nimages,maxx,maxy,maxz,maxangle);
-        }
-
         if (autostart)
         {
             count=0;
@@ -171,6 +167,15 @@ public:
     bool startMoving()
     {
         lock_guard<mutex> lg(mtx);
+
+        if (random)
+        {
+            pose=generateRandomPoses(nimages,maxx,maxy,maxz,maxangle);
+        }
+        else
+        {
+            pose=generateGridPoses(nimages,maxx,maxy,maxz,maxangle);
+        }
 
         if (save_result)
         {
@@ -382,9 +387,9 @@ public:
         vector<double> m2{-maxy,-maxy/2.0,0.0,maxheigth/3.0,(2.0/3.0)*maxheigth,maxheigth};
         vector<double> m1{-maxx,-maxx/2.0,0.0,maxx/2.0,maxx};
         int k=0;
-        for (size_t i=0; i<nposes/5; i++)
+        for (size_t i=0; i<nposes/6; i++)
         {
-            for (size_t j=0; j<nposes/6; j++)
+            for (size_t j=0; j<nposes/5; j++)
             {
                 double x = m1[i];
                 double y = m2[j];
@@ -501,7 +506,7 @@ public:
                     //and copy it into the folder
                     string calibFile=rf.getHomeContextPath()+"/outputCalib.ini";
                     struct stat buffer;
-                    double timeout=20.0;
+                    double timeout=100.0;
                     double t0=Time::now();
                     while (stat(calibFile.c_str(), &buffer) != 0)
                     {
@@ -613,7 +618,7 @@ int main(int argc, char* argv[])
 
     ResourceFinder rf;
     rf.configure(argc, argv);
-    rf.setDefaultContext("camera-calibration-best-pos");
+//    rf.setDefaultContext("camera-calibration-best-pos");
 
     PatternMover mover;
     return mover.runModule(rf);
