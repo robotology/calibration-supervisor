@@ -24,6 +24,12 @@ service calibEvaluator_IDL
     double getScore();
 
     /**
+     * Set the matching threshold.
+     * @return true/false on success/failure
+    */
+    bool setThreshold(1:double threshold)
+
+    /**
      * Reset match.
      * @return true/false on success/failure
      */

@@ -51,6 +51,7 @@ class Processing : public yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::P
     double percentage;
     int ntot;
     int count_skipped;
+    double match_thresh;
 
     std::mutex mtx;
 
@@ -80,6 +81,7 @@ public:
 
         ngoodmatch=0;
         count_skipped=0;
+        match_thresh=4.0;
 
         return true;
     }
@@ -183,7 +185,7 @@ public:
                 stddev=sqrt(stddev);
             }
             yInfo()<< "Got" << stddev << "px match";
-            if (stddev <= 2.3)
+            if (stddev <= match_thresh) //2.3
             {
                 ngoodmatch++;
             }
@@ -212,6 +214,16 @@ public:
         yInfo()<< "Final matches" << ngoodmatch << "over" << ntot;
         return (double)ngoodmatch/(ntot-count_skipped);
     }
+
+    /********************************************************/
+    bool setThreshold(const double threshold)
+    {
+        std::lock_guard<std::mutex> lg(mtx);
+        yInfo()<< "Setting threshold to" << threshold;
+        match_thresh=threshold;
+        return true;
+    }
+
 
 };
 
