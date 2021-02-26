@@ -108,11 +108,21 @@ function getFileParameters () {
 ###############################################################################
 
 calibContext=$3
+custom=$4
+robotName=$5
 
-yarpResource=$(yarp resource --context $calibContext --from $1)
+yarpResource=$(yarp resource --context $calibContext --from icubEyes.ini)
 resourcePath=$(echo "$yarpResource" | awk -F'"' '{print $2}' | awk -F'/icubEyes.ini' '{print $1}')
 
-icubEyesFile=$resourcePath/$1
+if [ ! -z ${custom} ]; then
+   echo "Using custom file"
+   icubEyesFile=$1
+else
+   icubEyesFile=$resourcePath/$1
+fi
+echo "resourcePath: $resourcePath"
+echo "Using file $icubEyesFile"
+
 outputFile=$resourcePath/$2
 
 if test -f "$outputFile"; then
@@ -121,7 +131,6 @@ if test -f "$outputFile"; then
     rm $outputFile
 fi
 
-robotName=$4
 if [[ $robotName == "" ]]
 then
     echo "Robot name not specified"
