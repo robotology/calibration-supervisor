@@ -73,7 +73,7 @@ We devised this part entirely in `Gazebo`, through the following steps:
 
     _Note: To run the scripts for event-cameras, you will need to specify a different context:_ 
     - `create-calibration-test-set.sh run camera-calibration-best-pos/event-cameras 1 100`;
-    - `evaluate-calibration.sh run camera-calibration-best-pos $ROBOT_CODE/camera-calibration-supervisor/testsets/rgb-cameras 200`.
+    - `evaluate-calibration.sh run camera-calibration-best-pos/event-cameras $ROBOT_CODE/camera-calibration-supervisor/testsets/event-cameras 200`.
 
 - **Choose the best set of poses**: 
 
