@@ -3,7 +3,7 @@
 # to have dot separated values instead of comma separated values
 #LANG=en_US
 
-# find-best-positions-calibration.sh run camera-calibration-best-pos/event-cameras 1 0.1734 0.13
+# find-best-positions-calibration.sh run camera-calibration-best-pos/event-cameras 200 0.1734 0.13
 
 # launch the demo
 run() {
@@ -35,7 +35,7 @@ run() {
     yarp wait /iKinGazeCtrl/events:o
 
     echo "Running movePattern"    
-    movePattern --context $CONTEXT --random false --maxx 0.04 --maxy 0.04 --maxangle 15.0 --board_width $BOARD_WIDTH --board_height $BOARD_HEIGHT &
+    movePattern --context $CONTEXT --random false --maxx 0.03 --maxy 0.04 --maxangle 15.0 --board_width $BOARD_WIDTH --board_height $BOARD_HEIGHT &
     
     for i in $( eval echo {1..$CANDIDATES} )
     do
@@ -45,7 +45,7 @@ run() {
       yarp wait /stereoCalib/cmd
     
       echo "Connect all"
-      yarpmanager-console --application ${ICUBcontrib_DIR}/share/ICUBcontrib/applications/camera-calibration-supervisor/$CONTEXT/camera-calibration-gazebo-candidate-pos-app.xml --run --connect --exit --silent
+      yarpmanager-console --application ${ICUBcontrib_DIR}/share/ICUBcontrib/applications/camera-calibration-supervisor/camera-calibration-best-pos/camera-calibration-gazebo-candidate-pos-app.xml --run --connect --exit --silent
       echo "start" | yarp rpc /movePattern/rpc
       while true; do
         check=$(echo "isRunning" | yarp rpc /movePattern/rpc | awk '{print $2}')
@@ -58,6 +58,7 @@ run() {
       sleep 1
       echo "Closing stereoCalib"
       killall stereoCalib
+      sleep 2
     done
 
     sleep 1
