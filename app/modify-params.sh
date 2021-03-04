@@ -108,7 +108,7 @@ function getFileParameters () {
 ###############################################################################
 
 calibContext=$3
-stereo=$4
+mono=$4
 custom=$5
 robotName=$6
 
@@ -132,10 +132,18 @@ if test -f "$outputFile"; then
     rm $outputFile
 fi
 
-if [[ $stereo == "" ]]
+if [[ $mono == "" ]]
 then
-    echo "Stereo param not specified"
-    stereo=1
+    echo "mono param not specified"
+    echo "Running stereo by default"
+    mono=0
+else 
+    if [[$mono == true]]
+    then
+        mono=1
+    else 
+        mono=0
+    fi
 fi
 
 if [[ $robotName == "" ]]
@@ -152,13 +160,13 @@ if [[ $# -lt 3 ]] ; then
 fi
 
 echo " "
-echo "Running script...with params $icubEyesFile $outputFile $calibContext $robotName"
+echo "Running script...with params $icubEyesFile $outputFile $calibContext $mono $custom $robotName"
 echo " "
 declare -A outputElements
 declare -A icubEyesElements
 
 echo "Running stereoCalib with monoCalib $stereo"
-stereoCalib --robotName $robotName --context $calibContext --from $icubEyesFile --STEREO_CALIBRATION_CONFIGURATION::numberOfPairs 30 --STEREO_CALIBRATION_CONFIGURATION::monoCalib $stereo > /dev/null 2>&1 & 
+stereoCalib --robotName $robotName --context $calibContext --from $icubEyesFile --STEREO_CALIBRATION_CONFIGURATION::numberOfPairs 30 --STEREO_CALIBRATION_CONFIGURATION::monoCalib $mono > /dev/null 2>&1 & 
 
 FILE=$outputFile
 while [ ! -f $outputFile ]
