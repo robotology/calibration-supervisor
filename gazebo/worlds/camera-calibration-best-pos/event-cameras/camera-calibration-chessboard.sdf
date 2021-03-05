@@ -1,0 +1,68 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <world name="default">
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <light name='user_point_light_0' type='point'>
+        <pose frame=''>0.197302 -0.215077 1 0 -0 0</pose>
+        <diffuse>0.5 0.5 0.5 1</diffuse>
+        <specular>0.1 0.1 0.1 1</specular>
+        <attenuation>
+          <range>20</range>
+          <constant>0.5</constant>
+          <linear>0.01</linear>
+          <quadratic>0.001</quadratic>
+        </attenuation>
+        <cast_shadows>0</cast_shadows>
+        <direction>0 0 -1</direction>
+    </light>
+
+    <state world_name='default'>
+
+      <light name='sun'>
+        <pose frame=''>0 0 10 0 -0 3.14</pose>
+      </light>
+
+      <light name='user_point_light_0'>
+        <pose frame=''>0.197302 -0.215077 1 0 -0 0</pose>
+      </light>
+    </state>
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <model name="iCub">
+      <include>
+        <uri>model://icub-distorted-camera-304x240</uri>
+        <pose>0.0 0.0 0.63 0.0 0.0 0.0</pose>
+      </include>
+    </model>
+
+    <model name="chessboard">
+    <include>
+      <plugin name='chessboard_interface' filename='libmovePattern-world.so'/>
+      <uri>model://chessboard-tablet</uri>
+    </include>
+     <!--place chessboard at the center of left eye-->
+     <!--<pose>-1.0 -0.033923 0.96 -1.57 0.0 -1.57</pose>-->
+     <pose>-0.28 0.0 0.97 -1.57 0.0 -1.57</pose> 
+     <joint name="fixed_to_ground" type="fixed">
+       <parent>world</parent>
+       <child>chessboard::marker</child>
+     </joint>
+    </model>
+
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose frame=''>1.612510 0.0 1.301603 0 0.187644 3.127388</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+
+  </world>
+</sdf>

@@ -1,0 +1,89 @@
+<application>
+    <name>Rgb Cam Calib Supervisor App</name>
+
+    <module>
+      <name>calibSupervisor</name>
+      <parameters></parameters>
+      <node>localhost</node>
+    </module>
+    
+    <module>
+      <name>stereoCalib</name>
+      <parameters>--context cameraCalibration --from icubEyes.ini --STEREO_CALIBRATION_CONFIGURATION::numberOfPairs 30</parameters>
+      <node>localhost</node>
+    </module>    
+
+    <module>
+        <name>yarpview</name>
+        <node>localhost</node>
+        <parameters>--name /display --x 300 --y 0</parameters>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <node>localhost</node>
+        <parameters>--name /sendtocalib --x 600 --y 0</parameters>
+    </module>
+    
+    <module>
+        <name>yarpview</name>
+        <node>localhost</node>
+        <parameters>--name /stereocalib_left --x 300 --y 300</parameters>
+    </module>
+    
+    <module>
+        <name>yarpview</name>
+        <node>localhost</node>
+        <parameters>--name /stereocalib_right --x 600 --y 300</parameters>
+    </module>
+
+    <connection>
+        <from>/icub/cam/left</from>
+        <to>/calibSupervisor/imageLeft:i</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+    <connection>
+        <from>/icub/cam/right</from>
+        <to>/calibSupervisor/imageRight:i</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+    
+    <connection>
+        <from>/calibSupervisor/imageRight:o</from>
+        <to>/stereoCalib/cam/right:i</to>
+        <protocol>fast_tcp</protocol>
+    </connection>        
+    <connection>
+        <from>/calibSupervisor/imageLeft:o</from>
+        <to>/stereoCalib/cam/left:i</to>
+        <protocol>fast_tcp</protocol>
+    </connection>    
+    <connection>
+        <from>/calibSupervisor/stereoCalib:rpc</from>
+        <to>/stereoCalib/cmd</to>
+        <protocol>fast_tcp</protocol>
+    </connection>    
+        
+    <connection>
+        <from>/calibSupervisor/display:o</from>
+        <to>/display</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+    <connection>
+        <from>/calibSupervisor/imageLeft:o</from>
+        <to>/sendtocalib</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+       
+    <connection>
+        <from>/stereoCalib/cam/left:o</from>
+        <to>/stereocalib_left</to>
+        <protocol>fast_tcp</protocol>
+    </connection>   
+   
+    <connection>
+        <from>/stereoCalib/cam/right:o</from>
+        <to>/stereocalib_right</to>
+        <protocol>fast_tcp</protocol>
+    </connection>  
+</application>

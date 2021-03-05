@@ -3,22 +3,29 @@
 # to have dot separated values instead of comma separated values
 #LANG=en_US
 
+# find-best-positions-calibration.sh run camera-calibration-best-pos/event-cameras 200 0.1734 0.13
+
 # launch the demo
 run() {
-    CANDIDATES=$1
+    CONTEXT=$1
+    CANDIDATES=$2
+    BOARD_WIDTH=${3:-0.24}
+    BOARD_HEIGHT=${4:-0.18}
+    
+    echo "Running for context $CONTEXT"    
     echo "Generating $CANDIDATES candidate positions"
     echo "Running yarp"
     yarpserver --write --silent &
 
     echo "Running world"
-    gazebo camera-calibration-chessboard.sdf &
+    gazebo $CONTEXT/camera-calibration-chessboard.sdf &
 
     echo "Waiting for ports"
     yarp wait /icubSim/head/state:o
     yarp wait /icubSim/inertial
 
     echo "Running gaze"
-    iKinGazeCtrl --context camera-calibration-best-pos --from iKinGazeCtrl.ini --torso off &
+    iKinGazeCtrl --context $CONTEXT --from iKinGazeCtrl.ini --torso off &
 
     echo "Waiting for chessboard"
     yarp wait /chessboard/mover:i
@@ -27,16 +34,22 @@ run() {
     yarp wait /iKinGazeCtrl/q:o
     yarp wait /iKinGazeCtrl/events:o
 
-    echo "Running stereoCalib"
-    stereoCalib --robotName icubSim --context camera-calibration-best-pos --from icubSimEyes.ini &
-    movePattern --random false &
-
-    echo "Connect all"
-    yarpmanager-console --application ${ICUBcontrib_DIR}/share/ICUBcontrib/applications/camera-calibration/camera-calibration-gazebo-candidate-pos-app.xml --run --connect --exit --silent
+    echo "Running movePattern"
+    if [[ $CONTEXT == *"event-cameras"* ]]; then
+        movePattern --context $CONTEXT --random false --maxx 0.005 --maxy 0.02 --maxangle 15.0 --board_width $BOARD_WIDTH --board_height $BOARD_HEIGHT &
+    else
+        movePattern --context $CONTEXT --random false &
+    fi    
 
     for i in $( eval echo {1..$CANDIDATES} )
     do
       echo "Running calibration for set $i"
+      echo "Running stereoCalib"
+      stereoCalib --robotName icubSim --context $CONTEXT --from icubSimEyes.ini &
+      yarp wait /stereoCalib/cmd
+    
+      echo "Connect all"
+      yarpmanager-console --application ${ICUBcontrib_DIR}/share/ICUBcontrib/applications/camera-calibration-supervisor/camera-calibration-best-pos/camera-calibration-gazebo-candidate-pos-app.xml --run --connect --exit --silent
       echo "start" | yarp rpc /movePattern/rpc
       while true; do
         check=$(echo "isRunning" | yarp rpc /movePattern/rpc | awk '{print $2}')
@@ -46,6 +59,10 @@ run() {
           break
         fi
       done
+      sleep 1
+      echo "Closing stereoCalib"
+      killall stereoCalib
+      sleep 2
     done
 
     sleep 1
@@ -82,7 +99,7 @@ clean() {
 echo "********************************************************************************"
 echo ""
 
-$1 $2
+$1 $2 $3 $4 $5
 
 if [[ $# -eq 0 ]] ; then
     echo "No options were passed!"
