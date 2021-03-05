@@ -109,13 +109,14 @@ public:
     /********************************************************/
 
     Processing( const std::string &moduleName, const std::string &fileNamePath, const std::string &filePath, const bool &stereo,
-                const bool &eventCam)
+                const bool &eventCam, const double &percentageThresh)
     {
         this->moduleName = moduleName;
         this->fileNamePath = fileNamePath;
         this->filePath = filePath;
         this->stereo = stereo;
         this->eventCam = eventCam;
+        this->percentageThresh = percentageThresh;
         configDone = false;
     }
 
@@ -162,6 +163,13 @@ public:
         gotGoodMatch = false;
         completedCalibration = false;
         displayOverlay = false;
+
+        yarp::os::Bottle cmd, rep;
+        cmd.addString("start");
+        if (stereoCalibRpc.write(cmd, rep))
+        {
+            yInfo() << "Started stereoCalib";
+        }
 
         return true;
     }
@@ -224,8 +232,6 @@ public:
         gotGoodMatch = false;
         completedCalibration = false;
         displayOverlay = false;
-
-        percentageThresh = 90.0;
 
         colour = {0,0,255};
 
@@ -475,10 +481,6 @@ public:
                     bool patternfoundR = false;
                     if (stereo)
                     {
-                        std::string leftname = "left.png";
-                        imwrite(leftname, imgMatLeft);
-                        std::string rightname = "right.png";
-                        imwrite(rightname, imgMatRight);
                         patternfoundR = findChessboardCorners(imgMatRight, patternsize, cornersR,
                                                                    cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE
                                                                    | cv::CALIB_CB_FAST_CHECK);
@@ -631,6 +633,7 @@ public:
         std::string fileName = rf.check("file", yarp::os::Value("calibrations.ini"), "file name (string)").asString();
         bool stereo = rf.check("stereo", yarp::os::Value(true),"true for stereo calibration (bool)").asBool();
         bool eventCam = rf.check("eventCam", yarp::os::Value(false),"if true, the pipeline for the event camera is active (bool)").asBool();
+        double percentageThresh = rf.check("percentageThresh", yarp::os::Value(90.0),"threshold percentage for matching image from camera and from gazebo (double)").asDouble();
         setName(moduleName.c_str());
 
         rpcPort.open(("/"+getName("/rpc")).c_str());
@@ -650,7 +653,7 @@ public:
         yInfo() << "Found file " << fileNamePath;
         yInfo() << "And its filePath  " << filePath;
 
-        processing = new Processing( moduleName, fileNamePath, filePath, stereo, eventCam );
+        processing = new Processing( moduleName, fileNamePath, filePath, stereo, eventCam, percentageThresh );
 
         /* now start the thread to do the work */
         processing->open();
