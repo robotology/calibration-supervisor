@@ -1,15 +1,15 @@
 <application>
-    <name>Event Cam Calib Supervisor App</name>
+    <name>Rgb Cam Calib Supervisor App</name>
 
     <module>
       <name>calibSupervisor</name>
-      <parameters>--file calibrations_event-cameras.ini --eventCam true</parameters>
+      <parameters></parameters>
       <node>localhost</node>
     </module>
     
     <module>
       <name>stereoCalib</name>
-      <parameters>--from icubEyes_ATIS.ini</parameters>
+      <parameters>--context cameraCalibration --from icubEyes.ini --STEREO_CALIBRATION_CONFIGURATION::numberOfPairs 30</parameters>
       <node>localhost</node>
     </module>    
 
@@ -38,12 +38,12 @@
     </module>
 
     <connection>
-        <from>/vFramer/left/image:o</from>
+        <from>/icub/cam/left</from>
         <to>/calibSupervisor/imageLeft:i</to>
         <protocol>fast_tcp</protocol>
     </connection>
     <connection>
-        <from>/vFramer/right/image:o</from>
+        <from>/icub/cam/right</from>
         <to>/calibSupervisor/imageRight:i</to>
         <protocol>fast_tcp</protocol>
     </connection>
