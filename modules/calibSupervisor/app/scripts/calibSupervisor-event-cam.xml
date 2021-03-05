@@ -3,7 +3,7 @@
 
     <module>
       <name>calibSupervisor</name>
-      <parameters>--file calibrations_event-cameras.ini --eventCam true --percentatgeThresh 86.0</parameters>
+      <parameters>--file calibrations_event-cameras.ini --eventCam true --percentageThresh 86.0</parameters>
       <node>localhost</node>
     </module>
     
