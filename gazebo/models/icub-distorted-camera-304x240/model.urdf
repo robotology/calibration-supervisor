@@ -2967,7 +2967,7 @@
     <pose>0.0 0.0 0.0 0.0 -1.57 1.57</pose>
     <camera>
       <!-- #from https://github.com/robotology/robots-configuration/blob/master/iCubGenova02/camera/ATIS_stereo.ini -->
-      <horizontal_fov>1.3069</horizontal_fov>
+      <horizontal_fov>1.1960</horizontal_fov>
       <image>
         <width>304</width>
         <height>240</height>
@@ -2977,11 +2977,11 @@
         <far>100</far>
       </clip>
       <distortion>
-        <k1>-0.326302</k1>
-        <k2>0.101052</k2>
+        <k1>-0.306144</k1>
+        <k2>0.0920747</k2>
         <k3>0.0</k3>
-        <p1>-0.00470766</p1>
-        <p2>-0.000842836</p2>
+        <p1>0.0025011</p1>
+        <p2>0.000335144</p2>
         <center>0.5 0.5</center>
       </distortion>
     </camera>
@@ -2996,7 +2996,7 @@
     <pose>0.0 0.0 0.0 0.0 -1.57 1.57</pose>
     <camera>
       <!-- #from https://github.com/robotology/robots-configuration/blob/master/iCubGenova02/camera/ATIS_stereo.ini -->
-      <horizontal_fov>1.3069</horizontal_fov>
+      <horizontal_fov>1.1960</horizontal_fov>
       <image>
         <width>304</width>
         <height>240</height>
@@ -3019,7 +3019,7 @@
     <pose>0.0 0.0 0.0 0.0 -1.57 1.57</pose>
     <camera>
       <!-- from https://github.com/robotology/robots-configuration/blob/master/iCubGenova02/camera/ATIS_stereo.ini -->
-      <horizontal_fov>1.4034</horizontal_fov>
+      <horizontal_fov>1.1960</horizontal_fov>
       <image>
         <width>304</width>
         <height>240</height>
@@ -3029,11 +3029,11 @@
         <far>100</far>
       </clip>
       <distortion>
-        <k1>-0.326302</k1>
-        <k2>0.101052</k2>
+        <k1>-0.354661</k1>
+        <k2>0.113576</k2>
         <k3>0.0</k3>
-        <p1>-0.00470766</p1>
-        <p2>-0.000842836</p2>
+        <p1>0.00210486</p1>
+        <p2>0.000641817</p2>
         <center>0.5 0.5</center>
       </distortion>
     </camera>
@@ -3048,7 +3048,7 @@
     <pose>0.0 0.0 0.0 0.0 -1.57 1.57</pose>
     <camera>
       <!-- from https://github.com/robotology/robots-configuration/blob/master/iCubGenova02/camera/ATIS_stereo.ini -->
-      <horizontal_fov>1.4034</horizontal_fov>
+      <horizontal_fov>1.1960</horizontal_fov>
       <image>
         <width>304</width>
         <height>240</height>

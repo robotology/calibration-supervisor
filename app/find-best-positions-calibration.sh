@@ -34,9 +34,13 @@ run() {
     yarp wait /iKinGazeCtrl/q:o
     yarp wait /iKinGazeCtrl/events:o
 
-    echo "Running movePattern"    
-    movePattern --context $CONTEXT --random false --maxx 0.03 --maxy 0.04 --maxangle 15.0 --board_width $BOARD_WIDTH --board_height $BOARD_HEIGHT &
-    
+    echo "Running movePattern"
+    if [[ $CONTEXT == *"event-cameras"* ]]; then
+        movePattern --context $CONTEXT --random false --maxx 0.005 --maxy 0.02 --maxangle 15.0 --board_width $BOARD_WIDTH --board_height $BOARD_HEIGHT &
+    else
+        movePattern --context $CONTEXT --random false &
+    fi    
+
     for i in $( eval echo {1..$CANDIDATES} )
     do
       echo "Running calibration for set $i"
