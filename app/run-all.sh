@@ -106,7 +106,10 @@ function getFileParameters () {
 ###############################################################################
 # "MAIN" FUNCTION:                                                            #
 ###############################################################################
+
 calibContext=$3
+mono=$4
+robotName=$5
 
 icubEyesFile=$(yarp resource --context $calibContext --from $1 | awk -F'"' '{print $2}' )
 echo "Using file $icubEyesFile"
@@ -114,19 +117,58 @@ echo "Using file $icubEyesFile"
 outputFile=$(yarp resource --context $calibContext --from $2 | awk -F'"' '{print $2}' )
 echo "stereoCalib writes the following file: $outputFile"
 
+if test -f "$outputFile"; then
+    echo "$outputFile exists."
+    echo "Removing $outputFile."
+    rm $outputFile
+fi
+
+if [[ $mono == "" ]]
+then
+    echo "mono param not specified"
+    echo "Running stereo by default"
+    mono=0
+else 
+    if [[$mono == true]]
+    then
+        mono=1
+    else 
+        mono=0
+    fi
+fi
+
+if [[ $robotName == "" ]]
+then
+    echo "Robot name not specified"
+    robotName=icub
+fi
+
 if [[ $# -lt 3 ]] ; then
     echo "No options were passed!"
 
     echo "You need to run this script with nameOfiCubEyes.ini nameofOutputFile.ini and context"
-    echo "If you want to specify a custom iCubEyes.ini file, please specify the full path"
     exit 1
 fi
 
 echo " "
-echo "Running script...with params $icubEyesFile $outputFile $calibContext"
+echo "Running script...with params $icubEyesFile $outputFile $calibContext $mono $robotName"
 echo " "
 declare -A outputElements
 declare -A icubEyesElements
+
+echo "Running stereoCalib with monoCalib $stereo"
+stereoCalib --robotName $robotName --context $calibContext --from $icubEyesFile --STEREO_CALIBRATION_CONFIGURATION::numberOfPairs 30 --STEREO_CALIBRATION_CONFIGURATION::monoCalib $mono > /dev/null 2>&1 & 
+
+FILE=$outputFile
+while [ ! -f $outputFile ]
+do
+  sleep 2 # or less like 0.2
+  echo "waiting for file ..."
+done
+#ls -l $outputFile
+
+echo "Got the file waiting for safety..."
+sleep 5
 
 getFileParameters $outputFile outputElements
 getFileParameters $icubEyesFile icubEyesElements
@@ -142,6 +184,9 @@ sed -i '$ d' $outputFile
 #sed -i '' -e '$ d' $outputFile
 
 sleep 3
+
+camCalib --name /camCalib/right --from $icubEyesFile --group CAMERA_CALIBRATION_RIGHT > /dev/null 2>&1 &
+camCalib --name /camCalib/left --from $icubEyesFile --group CAMERA_CALIBRATION_LEFT > /dev/null 2>&1
 
 echo " "
 echo "Script completed successfully..."
