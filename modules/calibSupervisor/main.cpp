@@ -68,6 +68,7 @@ class Processing : public yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::P
     yarp::os::BufferedPort<yarp::os::Bottle>  targetPort;
 
     yarp::os::RpcClient rpcClient;
+    yarp::os::RpcClient stereoCalibRpc;
 
     cv::Mat imgMatLeft;
     cv::Mat imgMatRight;
@@ -207,6 +208,7 @@ public:
         targetPort.open("/"+ moduleName + "/target:o");
         rpcClient.open("/"+moduleName+"/rpcClient");
         templOutPort.open("/"+moduleName+"/template:o");
+        stereoCalibRpc.open("/"+moduleName+"/stereoCalib:rpc");
 
         yarp::os::Network::connect("/icub/cam/left", BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> >::getName().c_str());
         yarp::os::Network::connect("/icub/cam/right", inPortRight.getName().c_str());
@@ -302,6 +304,13 @@ public:
                 //get the resulting roi onto black image
                 calibData[x].image.copyTo(calibData[x].resultImage, calibData[x].imageMask);
             }
+
+            yarp::os::Bottle cmd, rep;
+            cmd.addString("start");
+            if (stereoCalibRpc.write(cmd, rep))
+            {
+                yInfo() << "Started stereoCalib";
+            }
         }
 
 //        testImg=cv::imread("/home/vvasco/new-evt-stream.png", cv::IMREAD_GRAYSCALE);
@@ -334,6 +343,8 @@ public:
         targetPort.close();
         dispOutPort.close();
         templOutPort.close();
+        rpcClient.close();
+        stereoCalibRpc.close();
 
         if (isFileValid)
             delete[] calibData;
@@ -461,9 +472,14 @@ public:
                                                                cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE
                                                                | cv::CALIB_CB_FAST_CHECK);
                     bool ok_to_send = patternfoundL;
+                    bool patternfoundR = false;
                     if (stereo)
                     {
-                        bool patternfoundR = findChessboardCorners(imgMatRight, patternsize, cornersR,
+                        std::string leftname = "left.png";
+                        imwrite(leftname, imgMatLeft);
+                        std::string rightname = "right.png";
+                        imwrite(rightname, imgMatRight);
+                        patternfoundR = findChessboardCorners(imgMatRight, patternsize, cornersR,
                                                                    cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE
                                                                    | cv::CALIB_CB_FAST_CHECK);
                         ok_to_send = patternfoundL && patternfoundR;
@@ -472,6 +488,17 @@ public:
                     if (ok_to_send)
                     {
                         yInfo() << "We can send these images";
+                    }
+                    else
+                    {
+                        if (!patternfoundL)
+                        {
+                            yWarning() << "Left image not good for stereoCalib";
+                        }
+                        if (!patternfoundR)
+                        {
+                            yWarning() << "Right image not good for stereoCalib";
+                        }
                     }
 
                     if(percentage >= (percentageThresh / 100) && ok_to_send) {
@@ -643,7 +670,8 @@ public:
     }
 
     /**********************************************************/
-    bool quit(){
+    bool quit()
+    {
         closing = true;
         return true;
     }
