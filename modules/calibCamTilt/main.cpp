@@ -419,8 +419,16 @@ public:
     
         //-- Step 2: Matching descriptor vectors  
         //Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create( DescriptorMatcher::BRUTEFORCE );
-        Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create( DescriptorMatcher::MatcherType::FLANNBASED );
-//        Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create( DescriptorMatcher::FLANNBASED );
+        Ptr<DescriptorMatcher> matcher;
+#if (CV_MAJOR_VERSION < 4)
+        {
+            matcher = DescriptorMatcher::create( DescriptorMatcher::FLANNBASED );
+        }
+#else
+        {
+            matcher = DescriptorMatcher::create( DescriptorMatcher::MatcherType::FLANNBASED );
+        }
+#endif
 
         std::vector< std::vector<DMatch> > all_matches;
         std::vector< DMatch > good_matches;
