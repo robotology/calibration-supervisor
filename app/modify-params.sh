@@ -111,7 +111,8 @@ calibContext=$3
 icubEyesFile=$(yarp resource --context $calibContext --from $1 | awk -F'"' '{print $2}' )
 echo "Using file $icubEyesFile"
 
-outputFile=$(yarp resource --context $calibContext --from $2 | awk -F'"' '{print $2}' )
+resourcePath=$(echo "$icubEyesFile" | sed 's|\(.*\)/.*|\1|')
+outputFile=$resourcePath/$2
 echo "stereoCalib writes the following file: $outputFile"
 
 if [[ $# -lt 3 ]] ; then

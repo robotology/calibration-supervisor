@@ -114,7 +114,9 @@ robotName=$5
 icubEyesFile=$(yarp resource --context $calibContext --from $1 | awk -F'"' '{print $2}' )
 echo "Using file $icubEyesFile"
 
-outputFile=$(yarp resource --context $calibContext --from $2 | awk -F'"' '{print $2}' )
+resourcePath=$(echo "$icubEyesFile" | sed 's|\(.*\)/.*|\1|')
+outputFile=$resourcePath/$2
+
 echo "stereoCalib writes the following file: $outputFile"
 
 if test -f "$outputFile"; then
@@ -129,8 +131,8 @@ then
     echo "Running stereo by default"
     mono=0
 else 
-    if [[$mono == true]]
-    then
+    echo $mono
+    if $mono; then
         mono=1
     else 
         mono=0
@@ -156,7 +158,7 @@ echo " "
 declare -A outputElements
 declare -A icubEyesElements
 
-echo "Running stereoCalib with monoCalib $stereo"
+echo "Running stereoCalib with monoCalib $mono"
 stereoCalib --robotName $robotName --context $calibContext --from $icubEyesFile --STEREO_CALIBRATION_CONFIGURATION::numberOfPairs 30 --STEREO_CALIBRATION_CONFIGURATION::monoCalib $mono > /dev/null 2>&1 & 
 
 FILE=$outputFile
