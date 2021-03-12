@@ -159,7 +159,7 @@ declare -A outputElements
 declare -A icubEyesElements
 
 echo "Running stereoCalib with monoCalib $mono"
-stereoCalib --robotName $robotName --context $calibContext --from $icubEyesFile --STEREO_CALIBRATION_CONFIGURATION::numberOfPairs 30 --STEREO_CALIBRATION_CONFIGURATION::monoCalib $mono & 
+stereoCalib --robotName $robotName --context $calibContext --from $icubEyesFile --STEREO_CALIBRATION_CONFIGURATION::numberOfPairs 30 --STEREO_CALIBRATION_CONFIGURATION::MonoCalib $mono & 
 
 FILE=$outputFile
 while [ ! -f $outputFile ]
