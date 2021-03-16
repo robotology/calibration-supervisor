@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(camera-calibration-supervisor)
 
-find_package(OpenCV 4.0 REQUIRED)
+find_package(OpenCV REQUIRED)
 find_package(YCM REQUIRED)
 find_package(ICUBcontrib REQUIRED)
 find_package(YARP REQUIRED COMPONENTS os sig dev math cv)
