@@ -290,6 +290,12 @@ public:
     }
 
     /********************************************************/
+    bool setThreshold(const double threshold) override
+    {
+        return processing->setThreshold(threshold);
+    }
+
+    /********************************************************/
     bool reset() override
     {
         return processing->reset();
