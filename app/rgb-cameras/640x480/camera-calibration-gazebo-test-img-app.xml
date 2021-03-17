@@ -1,0 +1,84 @@
+<application>
+
+  <name>Camera Calibration Gazebo Test Images App</name>
+
+  <!--<module>
+      <name>movePattern</name>
+      <parameters>--autostart true --nimages 50</parameters>
+      <node>localhost</node>
+  </module>-->
+
+  <module>
+      <name>yarpdatadumper</name>
+      <parameters>--name /testsets/rgb-cameras/640x480/ideal --type image_png</parameters>
+      <workdir>/home/vvasco/dev/robotology/camera-calibration-supervisor</workdir>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>yarpdatadumper</name>
+      <parameters>--name /testsets/rgb-cameras/640x480/distorted --type image_png</parameters>
+      <workdir>/home/vvasco/dev/robotology/camera-calibration-supervisor</workdir>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>yarpview</name>
+      <parameters>--name /view_left --x 20 --y 20</parameters>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>yarpview</name>
+      <parameters>--name /view_left_distorted --x 420 --y 20</parameters>
+      <node>localhost</node>
+  </module>
+
+  <connection>
+      <from>/movePattern/mover:o</from>
+      <to>/chessboard/mover:i</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/chessboard/mover:o</from>
+      <to>/movePattern/mover:i</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/icubSim/cam/left/rgbImage:o</from>
+      <to>/movePattern/gt:i</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/icubSim/cam/left_distorted/rgbImage:o</from>
+      <to>/movePattern/distorted:i</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/icubSim/cam/left/rgbImage:o</from>
+      <to>/view_left</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/icubSim/cam/left_distorted/rgbImage:o</from>
+      <to>/view_left_distorted</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/movePattern/gt:o</from>
+      <to>/testsets/rgb-cameras/640x480/ideal</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/movePattern/distorted:o</from>
+      <to>/testsets/rgb-cameras/640x480/distorted</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+</application>

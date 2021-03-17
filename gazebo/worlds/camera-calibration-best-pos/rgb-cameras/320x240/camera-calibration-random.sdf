@@ -37,7 +37,7 @@
 
     <model name="iCub">
       <include>
-        <uri>model://icub-distorted-camera</uri>
+        <uri>model://icub-distorted-camera-320x240</uri>
         <pose>0.0 0.0 0.63 0.0 0.0 0.0</pose>
       </include>
     </model>

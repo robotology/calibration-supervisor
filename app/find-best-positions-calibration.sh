@@ -3,14 +3,16 @@
 # to have dot separated values instead of comma separated values
 #LANG=en_US
 
-# find-best-positions-calibration.sh run camera-calibration-best-pos/event-cameras 200 0.1734 0.13
+# find-best-positions-calibration.sh run camera-calibration-best-pos/event-cameras/304x240 200 304 240 0.1734 0.13 
 
 # launch the demo
 run() {
     CONTEXT=$1
     CANDIDATES=$2
-    BOARD_WIDTH=${3:-0.24}
-    BOARD_HEIGHT=${4:-0.18}
+    WIDTH=${3:-320}
+    HEIGHT=${4:-240}
+    BOARD_WIDTH=${5:-0.297}
+    BOARD_HEIGHT=${6:-0.21}
     
     echo "Running for context $CONTEXT"    
     echo "Generating $CANDIDATES candidate positions"
@@ -36,9 +38,9 @@ run() {
 
     echo "Running movePattern"
     if [[ $CONTEXT == *"event-cameras"* ]]; then
-        movePattern --context $CONTEXT --random false --maxx 0.005 --maxy 0.02 --maxangle 15.0 --board_width $BOARD_WIDTH --board_height $BOARD_HEIGHT &
+        movePattern --context $CONTEXT --random false --maxx 0.005 --maxy 0.02 --maxangle 15.0 --board_width $BOARD_WIDTH --board_height $BOARD_HEIGHT --width $WIDTH --height $HEIGHT &
     else
-        movePattern --context $CONTEXT --random false &
+        movePattern --context $CONTEXT --random false --width $WIDTH --height $HEIGHT &
     fi    
 
     for i in $( eval echo {1..$CANDIDATES} )

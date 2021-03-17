@@ -37,7 +37,7 @@
 
     <model name="iCub">
       <include>
-        <uri>model://icub-distorted-camera</uri>
+        <uri>model://icub-distorted-camera-640x480</uri>
         <pose>0.0 0.0 0.63 0.0 0.0 0.0</pose>
       </include>
     </model>
@@ -49,7 +49,7 @@
     </include>
      <!--place chessboard at the center of left eye-->
      <!--<pose>-1.0 -0.033923 0.96 -1.57 0.0 -1.57</pose>-->
-     <pose>-0.45 0.0 0.97 -1.57 0.0 -1.57</pose> 
+     <pose>-0.30 -0.033923 0.97 -1.57 0.0 -1.57</pose> 
      <joint name="fixed_to_ground" type="fixed">
        <parent>world</parent>
        <child>chessboard::marker</child>

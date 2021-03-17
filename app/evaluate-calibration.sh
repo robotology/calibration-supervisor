@@ -3,23 +3,30 @@
 # to have dot separated values instead of comma separated values
 #LANG=en_US
 
-# evaluate-calibration.sh run camera-calibration-best-pos/event-cameras /home/vvasco/dev/robotology/camera-calibration-supervisor/testsets/event-cameras 200
+# evaluate-calibration.sh run camera-calibration-best-pos/event-cameras/304x240 /home/vvasco/dev/robotology/camera-calibration-supervisor/testsets/event-cameras/304x240 200
 
 # launch the demo
 run() {
     CONTEXT=$1
     FOLDER=$2
     CANDIDATES=$3
+    THRESHOLD=9.5
     yarpserver --write --silent &
 
     yarpdataplayer &
     yarp wait /yarpdataplayer/rpc:i
     echo "load $FOLDER" | yarp rpc /yarpdataplayer/rpc:i
     
+    #opened by yarpdataplayer
     yarp wait /movePattern/gt:o
     yarp wait /movePattern/distorted:o
 
-    calibEvaluator &    
+    calibEvaluator &
+    yarp wait /calibEvaluator/rpc
+    if [[ $CONTEXT == *"640x480"* ]]; then
+        echo "Setting threshold to $THRESHOLD"    
+        echo "setThreshold $THRESHOLD" | yarp rpc /calibEvaluator/rpc
+    fi
     for i in $( eval echo {1..$CANDIDATES} )
     do
       dstfile="/home/vvasco/.local/share/yarp/contexts/$CONTEXT/candidatePos_$i/score.txt"
