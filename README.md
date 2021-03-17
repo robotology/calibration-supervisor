@@ -1,5 +1,7 @@
 # Supervising camera calibration using optimized chessboard poses
 
+## :information_source: Intro
+
 *Camera calibration* is a crucial step in computer vision applications, as it allows to estimate the scene's structure and remove lens distortion. 
 
 The camera is typically modeled with a set of intrinsic (i.e. focal length, principal point and axis skew) and extrinsic parameters (i.e. rotation and translation).
@@ -7,7 +9,7 @@ The most common calibration procedure estimates such parameters using known poin
  
 This repository contains the software required to identify **the best chessboard poses** and to **visually guide the user** to place the chessboard in the selected poses. The set of poses which maximizes the result of the calibration procedure is selected as best set. 
 
-## Camera calibration on the iCub
+## :robot: Camera calibration on the iCub
 
 [`stereoCalib`](https://robotology.github.io/robotology-documentation/doc/html/group__icub__stereoCalib.html) is the module used on the iCub to perform stereo calibration (both intrinsic and extrinsic parameters). The module saves the final result onto a file called `outputCalib.ini`. 
 
@@ -15,7 +17,7 @@ Typically, such file is manually copied into `icubEyes.ini`, which is in turn lo
 
 Our procedure uses `stereoCalib` to perform the calibration. Then we copy `outputCalib.ini` into the file loaded by `camCalib` to evaluate the quality of the calibration, by assessing how *similar* the undistorted image produced by `camCalib` is to the ideal image.
 
-## The devised procedure
+## :new: The devised procedure
 
 The devised procedure consists mainly of two steps:
 
@@ -40,10 +42,15 @@ We devised this part entirely in `Gazebo`, through the following steps:
     
     This step was performed by running:
      
-     `find-best-positions-calibration.sh run camera-calibration-best-pos 200`
+     `find-best-positions-calibration.sh run camera-calibration-best-pos/rgb-cameras/320x240 200`
+    
+    :point_up:  **Important note**:
+ 
+    By default, the cameras considered are _rgb_ with a resolution of `320x240 px`. We currently support **higher resolution** (`640x480 px`) and **event cameras** with `304x240` resolution.
+    To generate the candidate positions, the _proper context_ and the _camera resolution_ have to be specified, specifically:
+    - for _rgb cameras with `640x480 px`_: `find-best-positions-calibration.sh run camera-calibration-best-pos/rgb-cameras/640x480 200 640 480`;
+    - for _event cameras with `304x240 px`_: `find-best-positions-calibration.sh run camera-calibration-best-pos/event-cameras/304x240 200 304 240 0.1734 0.13`. Notice that event-cameras require two additional parameters, i.e. the board parameters. This is because, in order to generate events, the pattern is shown flashing on a tablet, thus the board parameters are derived from the tablet dimensions.
 
-    _Note: To run the script for event-cameras, you will need to specify a different context:_
-    - `find-best-positions-calibration.sh run camera-calibration-best-pos/event-cameras 200 0.1734 0.13`.
 
 - **Run the calibration**: 
 
@@ -59,7 +66,7 @@ We devised this part entirely in `Gazebo`, through the following steps:
     
     This step was performed by running:
     
-    `create-calibration-test-set.sh run camera-calibration-best-pos 1 100`
+    `create-calibration-test-set.sh run camera-calibration-best-pos/rgb-cameras/320x240 1 100`
 
     For each set we save the calibration result `outputCalib.ini` and copy it into `camCalib`.  We thus evaluate the quality of the calibration procedure by comparing the undistorted image provided by `camCalib` using the parameters estimated by the calibration procedure and the ground truth image provided by the ideal undistorted camera in `Gazebo`, as shown by the following: 
 
@@ -69,17 +76,24 @@ We devised this part entirely in `Gazebo`, through the following steps:
 
     This step was performed by running:
     
-    `evaluate-calibration.sh run camera-calibration-best-pos $ROBOT_CODE/camera-calibration-supervisor/testsets/rgb-cameras 200`
+    `evaluate-calibration.sh run camera-calibration-best-pos/rgb-cameras/320x240 $ROBOT_CODE/camera-calibration-supervisor/testsets/rgb-cameras/320x240 200`
 
-    _Note: To run the scripts for event-cameras, you will need to specify a different context:_ 
-    - `create-calibration-test-set.sh run camera-calibration-best-pos/event-cameras 1 100`;
-    - `evaluate-calibration.sh run camera-calibration-best-pos/event-cameras $ROBOT_CODE/camera-calibration-supervisor/testsets/event-cameras 200`.
+    :point_up:  **Important note**:
+
+     To create the test set and run the evaluation for different resolution or camera, the _proper context_ and the _camera resolution_ have to be specified, specifically:
+
+    - for _rgb cameras with `640x480 px`_: 
+        - `create-calibration-test-set.sh run camera-calibration-best-pos/rgb-cameras/640x480 1 100 640 480`;
+        - `evaluate-calibration.sh run camera-calibration-best-pos/rgb-cameras/640x480 $ROBOT_CODE/camera-calibration-supervisor/testsets/rgb-cameras/640x480 200`
+    - for _event cameras with `304x240 px`_:
+        -  `create-calibration-test-set.sh run camera-calibration-best-pos/event-cameras/304x240 1 100 304 240`. 
+        -  `evaluate-calibration.sh run camera-calibration-best-pos/event-cameras/304x240 $ROBOT_COTDE/camera-calibration-supervisor/testsets/event-cameras/304x240 200`
 
 - **Choose the best set of poses**: 
 
     The set of poses that generates the highest score, as computed through the previous step, is selected. 
 
-### Supervise the calibration procedure
+### :mag_right:  Supervise the calibration procedure
 
 The supervisor provides an interface between the user and the calibration, in order to guide to user to place the chessboard in the poses identified through the above described pipeline. 
 Specifically, the module loads the best poses (i.e. the corner pixels of the bounding boxes) and the corresponding images and:
@@ -101,16 +115,16 @@ The described procedure is iterated through all the positions generated by the e
 
 Once all the frames are processed, the `stereoCalib` module generates the `outputCalib.ini` with the correct parameters that can be used to remove the camera distortion eg: camCalib.    
 
-## Final result
+## :dart: Final result
 
-The images below show the before and after calibration using the devised pipeline. We can notice that the distortion is correctly handled by the calibration. 
+The following video shows the entire pipeline working on the robot. When the 30 images are covered, the calibrated images are shown on the right:
 
-| Before calibration | After calibration |
-| ------------- | ------------- |
-|<p align="center"> <img src=https://user-images.githubusercontent.com/4537987/104766059-39096900-576a-11eb-997c-a187703cdedb.png width="400"> </p> | <p align="center">  <img src=https://user-images.githubusercontent.com/4537987/104766080-4292d100-576a-11eb-8c0c-2d727d692e45.png width="400"> </p> |
+https://user-images.githubusercontent.com/9716288/111452620-fe449280-8712-11eb-8cc3-771487b0a764.mp4
+
+We can notice that the distortion is correctly handled by the calibration. 
 
 
-## References
+## :book: References
 
 [1] Z. Zhang, "A flexible new technique for camera calibration," in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 22, no. 11, pp. 1330-1334, Nov. 2000, doi: 10.1109/34.888718.
 
