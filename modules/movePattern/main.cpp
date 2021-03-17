@@ -79,6 +79,8 @@ class PatternMover : public RFModule
     int count;
     int nhor;
     int nver;
+    int width;
+    int height;
     double board_width;
     double board_height;
     double square_size;
@@ -106,14 +108,16 @@ public:
         autostart=rf.check("autostart",Value(false)).asBool();
         save_result=rf.check("save",Value(true)).asBool();
         create_test=rf.check("create_test",Value(false)).asBool();
-        maxx=rf.check("maxx",Value(0.06)).asDouble();
-        maxy=rf.check("maxy",Value(0.05)).asDouble();
+        maxx=rf.check("maxx",Value(0.05)).asDouble();
+        maxy=rf.check("maxy",Value(0.035)).asDouble();
         maxz=rf.check("maxz",Value(0.0)).asDouble();
         maxangle=(M_PI/180)*rf.check("maxangle",Value(20.0)).asDouble();
         nhor=rf.check("nhor",Value(8)).asDouble();
         nver=rf.check("nver",Value(6)).asDouble();
-        board_width=rf.check("board_width",Value(0.24)).asDouble();
-        board_height=rf.check("board_height",Value(0.18)).asDouble();
+        width=rf.check("width",Value(320)).asInt();
+        height=rf.check("height",Value(240)).asInt();
+        board_width=rf.check("board_width",Value(0.297)).asDouble();
+        board_height=rf.check("board_height",Value(0.21)).asDouble();
         square_size=board_width/nhor;
 
         leftImageInPort.open("/"+moduleName+"/leftImage:i");
@@ -139,6 +143,9 @@ public:
         {
             clientGazeCtrl.view(igaze);
             yInfo()<<"Successfully connected to iKinGazeCtrl";
+            Bottle info;
+            igaze->getInfo(info);
+            yInfo()<<"Running iKinGazeCtrl with the following params"<<info.toString();
         }
         else
         {
@@ -159,7 +166,6 @@ public:
         }
         dirindex=1;
         start_calibrating=false;
-
         return true;
     }
 
@@ -191,7 +197,7 @@ public:
                 return false;
             }
 
-            string fileName=outdir+"/pos.txt";
+            string fileName=outdir+"/pos.ini";
             outfile.open(fileName, ios_base::app);
             if (!outfile.is_open())
             {
@@ -269,69 +275,122 @@ public:
     bool save(const int idx, const Vector &p, const Mat &img)
     {
         yInfo()<<"Writing"<<p.toString()<<"to file";
-        Matrix chessboard_frame=getChessboardFrame();
-        Matrix T0=zeros(4,4);
-        Vector t0{p[0],p[1],p[2],1.0};
-        Vector rpy0{p[3],p[4],p[5]};
-        T0.setSubmatrix(rpy2dcm(rpy0),0,0);
-        T0.setCol(3,t0);
-        Vector c0=T0.getCol(3);
+        //chessboard frame with respect to root
+        Matrix toroot=getChessboardFrame();
+        toroot(2,3)-=0.63;
 
-        Matrix T1=chessboard_frame*T0;
-        T1(2,3)-=0.63;
+        //pose frame with respect to chessboard
+        //x pointing left
+        //y pointing down
+        Matrix Tchess=zeros(4,4);
+        Vector tchess{p[0],p[1],p[2],1.0};
+        Vector rpychess{p[3],p[4],p[5]};
+        Tchess.setSubmatrix(rpy2dcm(rpychess),0,0);
+        Tchess.setCol(3,tchess);
 
-        yarp::sig::Vector axx=T0.subcol(0,0,3);
-        yarp::sig::Vector axy=T0.subcol(0,1,3);
+        //pose frame with respect to root
+        Matrix Troot=toroot*Tchess;
+        Vector c1_root=Troot.getCol(3);
 
-        c0[0]=-1.0*c0[0];
-        c0[1]=-1.0*c0[1];
-        yarp::sig::Vector p1=-(board_width/2.0)*axx-(square_size/2.0);
-        yarp::sig::Vector p2=+(board_height/2.0)*axy+(square_size/2.0);
-        yarp::sig::Vector p3=+(board_width/2.0)*axx+(square_size/2.0);
-        yarp::sig::Vector p4=-(board_height/2.0)*axy-(square_size/2.0);
-        yarp::sig::Vector depth=c0;
+        yarp::sig::Vector ax=Tchess.subcol(0,0,3);
+        yarp::sig::Vector ay=Tchess.subcol(0,1,3);
+        double tl_x=+(board_width/2.0)*ax[0]+(square_size/2.0);
+        double tl_y=-(board_height/2.0)*ay[1]-(square_size/2.0);
+        double tl_z=0.0;
+
+        double tr_x=-(board_width/2.0)*ax[0]-(square_size/2.0);
+        double tr_y=-(board_height/2.0)*ay[1]-(square_size/2.0);
+        double tr_z=0.0;
+
+        double bl_x=+(board_width/2.0)*ax[0]+(square_size/2.0);
+        double bl_y=+(board_height/2.0)*ay[1]+(square_size/2.0);
+        double bl_z=0.0;
+
+        double br_x=-(board_width/2.0)*ax[0]-(square_size/2.0);
+        double br_y=+(board_height/2.0)*ay[1]+(square_size/2.0);
+        double br_z=0.0;
 
         Vector tl(4,1.0);
         Vector tl_px(2);
-        tl[0]=p1[0];
-        tl[1]=p2[1];
-        tl[2]=depth[2];
-        tl=T1*tl;
+        tl[0]=tl_x;
+        tl[1]=tl_y;
+        tl[2]=tl_z;
+        tl=Troot*tl;
         igaze->get2DPixel(0,tl,tl_px);
 
         Vector tr(4,1.0);
         Vector tr_px(2);
-        tr[0]=p3[0];
-        tr[1]=p2[1];
-        tr[2]=depth[2];
-        tr=T1*tr;
+        tr[0]=tr_x;
+        tr[1]=tr_y;
+        tr[2]=tr_z;
+        tr=Troot*tr;
         igaze->get2DPixel(0,tr,tr_px);
 
         Vector bl(4,1.0);
         Vector bl_px(2);
-        bl[0]=p1[0];
-        bl[1]=p4[1];
-        bl[2]=depth[2];
-        bl=T1*bl;
+        bl[0]=bl_x;
+        bl[1]=bl_y;
+        bl[2]=bl_z;
+        bl=Troot*bl;
         igaze->get2DPixel(0,bl,bl_px);
 
         Vector br(4,1.0);
         Vector br_px(2);
-        br[0]=p3[0];
-        br[1]=p4[1];
-        br[2]=depth[2];
-        br=T1*br;
+        br[0]=br_x;
+        br[1]=br_y;
+        br[2]=br_z;
+        br=Troot*br;
         igaze->get2DPixel(0,br,br_px);
 
-        //the image is reversed on x,y:
-        //BR => TL
-        //BL => TR
-        //TR => BL
-        //TL => BR
+        if (tr_px[0]>=width)
+        {
+            tr_px[0]=width-1.0;
+        }
+        if (tr_px[1]<=0)
+        {
+            tr_px[1]=1.0;
+        }
+
+        if (br_px[0]>=width)
+        {
+            br_px[0]=width-1.0;
+        }
+        if (br_px[1]>=height)
+        {
+            br_px[1]=height-1.0;
+        }
+
+        if (tl_px[0]<=0)
+        {
+            tl_px[0]=1.0;
+        }
+        if (tl_px[1]<=0)
+        {
+            tl_px[1]=1.0;
+        }
+
+        if (bl_px[0]<=0)
+        {
+            bl_px[0]=1.0;
+        }
+        if (bl_px[1]>=height)
+        {
+            bl_px[1]=height-1.0;
+        }
+
         string imgname="img"+to_string(idx)+".png";
-        outfile<<"("<<br_px[0]<<" "<<br_px[1]<<" "<<bl_px[0]<<" "<<bl_px[1]<<") "
-              <<"("<<tr_px[0]<<" "<<tr_px[1]<<" "<<tl_px[0]<<" "<<tl_px[1]<<") "
+        outfile<<"("<<tl_px[0]<<" "<<tl_px[1]<<" "<<tr_px[0]<<" "<<tr_px[1]<<") "
+              <<"("<<bl_px[0]<<" "<<bl_px[1]<<" "<<br_px[0]<<" "<<br_px[1]<<") "
              <<"("<<imgname<<")"<<endl;
+
+        Vector c_px(2);
+        igaze->get2DPixel(0,c1_root,c_px);
+
+//        circle(img,Point(tl_px[0],tl_px[1]),2,Scalar(0,0,255),2,-1);
+//        circle(img,Point(tr_px[0],tr_px[1]),2,Scalar(0,0,255),2,-1);
+//        circle(img,Point(br_px[0],br_px[1]),2,Scalar(0,0,255),2,-1);
+//        circle(img,Point(bl_px[0],bl_px[1]),2,Scalar(0,0,255),2,-1);
+//        circle(img,Point(c_px[0],c_px[1]),2,Scalar(255,0,0),2,-1);
 
         //save image
         yInfo()<<"Saving image"<<idx;
@@ -383,8 +442,13 @@ public:
         uniform_real_distribution<double> dyaw(-maxangle, maxangle);
         pose.resize(nposes, 6);
         pose.zero();
-        double maxheigth=maxy+square_size/2.0;
-        vector<double> m2{-maxy,-maxy/2.0,0.0,maxheigth/3.0,(2.0/3.0)*maxheigth,maxheigth};
+
+        //chessboard frame
+        //x pointing left
+        //y pointing down
+//        double maxheigth=maxy+square_size/2.0;
+//        vector<double> m2{-maxy,-maxy/2.0,0.0,maxheigth/3.0,(2.0/3.0)*maxheigth,maxheigth};
+        vector<double> m2{-square_size/2.0-maxy,-square_size/2.0-maxy/2.0,-square_size/2.0,square_size/2.0,square_size/2.0+maxy/2.0,square_size/2.0+maxy};
         vector<double> m1{-maxx,-maxx/2.0,0.0,maxx/2.0,maxx};
         int k=0;
         for (size_t i=0; i<nposes/6; i++)
