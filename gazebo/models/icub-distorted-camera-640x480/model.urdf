@@ -2966,22 +2966,21 @@
   <sensor name="distorted_left_camera_rgb" type="camera">
     <pose>0.0 0.0 0.0 0.0 -1.57 1.57</pose>
     <camera>
-      <!-- #from https://github.com/robotology/robots-configuration/blob/master/iCubGenova02/camera/ATIS_stereo.ini -->
-      <horizontal_fov>1.1960</horizontal_fov>
+      <horizontal_fov>1.2499</horizontal_fov>
       <image>
-        <width>304</width>
-        <height>240</height>
+        <width>640</width>
+        <height>480</height>
       </image>
       <clip>
         <near>0.1</near>
         <far>100</far>
       </clip>
       <distortion>
-        <k1>-0.306144</k1>
-        <k2>0.0920747</k2>
+        <k1>-0.3261</k1>
+        <k2>0.08607</k2>
         <k3>0.0</k3>
-        <p1>0.0025011</p1>
-        <p2>0.000335144</p2>
+        <p1>-0.0018</p1>
+        <p2>-0.0010</p2>
         <center>0.5 0.5</center>
       </distortion>
     </camera>
@@ -2995,11 +2994,10 @@
   <sensor name="ideal_left_camera_rgb" type="camera">
     <pose>0.0 0.0 0.0 0.0 -1.57 1.57</pose>
     <camera>
-      <!-- #from https://github.com/robotology/robots-configuration/blob/master/iCubGenova02/camera/ATIS_stereo.ini -->
-      <horizontal_fov>1.1960</horizontal_fov>
+      <horizontal_fov>1.2499</horizontal_fov>
       <image>
-        <width>304</width>
-        <height>240</height>
+        <width>640</width>
+        <height>480</height>
       </image>
       <clip>
         <near>0.1</near>
@@ -3018,22 +3016,21 @@
   <sensor name="distorted_right_camera_rgb" type="camera">
     <pose>0.0 0.0 0.0 0.0 -1.57 1.57</pose>
     <camera>
-      <!-- from https://github.com/robotology/robots-configuration/blob/master/iCubGenova02/camera/ATIS_stereo.ini -->
-      <horizontal_fov>1.1960</horizontal_fov>
+      <horizontal_fov>1.2499</horizontal_fov>
       <image>
-        <width>304</width>
-        <height>240</height>
+        <width>640</width>
+        <height>480</height>
       </image>
       <clip>
         <near>0.1</near>
         <far>100</far>
       </clip>
       <distortion>
-        <k1>-0.354661</k1>
-        <k2>0.113576</k2>
+        <k1>-0.3261</k1>
+        <k2>0.08607</k2>
         <k3>0.0</k3>
-        <p1>0.00210486</p1>
-        <p2>0.000641817</p2>
+        <p1>-0.0018</p1>
+        <p2>-0.0010</p2>
         <center>0.5 0.5</center>
       </distortion>
     </camera>
@@ -3047,11 +3044,10 @@
   <sensor name="ideal_right_camera_rgb" type="camera">
     <pose>0.0 0.0 0.0 0.0 -1.57 1.57</pose>
     <camera>
-      <!-- from https://github.com/robotology/robots-configuration/blob/master/iCubGenova02/camera/ATIS_stereo.ini -->
-      <horizontal_fov>1.1960</horizontal_fov>
+      <horizontal_fov>1.2499</horizontal_fov>
       <image>
-        <width>304</width>
-        <height>240</height>
+        <width>640</width>
+        <height>480</height>
       </image>
       <clip>
         <near>0.1</near>
