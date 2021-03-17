@@ -117,11 +117,14 @@ Once all the frames are processed, the `stereoCalib` module generates the `outpu
 
 ## :dart: Final result
 
-The following video shows the entire pipeline working on the robot. When the 30 images are covered, the calibrated images are shown on the right:
+The images below show the before and after calibration using the devised pipeline. We can notice that the distortion is correctly handled by the calibration. 
 
-https://user-images.githubusercontent.com/9716288/111452620-fe449280-8712-11eb-8cc3-771487b0a764.mp4
+| Before calibration | After calibration |
+| ------------- | ------------- |
+|<p align="center"> <img src=https://user-images.githubusercontent.com/4537987/104766059-39096900-576a-11eb-997c-a187703cdedb.png width="400"> </p> | <p align="center">  <img src=https://user-images.githubusercontent.com/4537987/104766080-4292d100-576a-11eb-8c0c-2d727d692e45.png width="400"> </p> |
 
-We can notice that the distortion is correctly handled by the calibration. 
+[This video](https://user-images.githubusercontent.com/9716288/111452620-fe449280-8712-11eb-8cc3-771487b0a764.mp4
+) shows the entire pipeline working on the robot. When the 30 images are covered, the calibrated images are shown on the right.
 
 
 ## :book: References
