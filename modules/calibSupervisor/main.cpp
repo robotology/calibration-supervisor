@@ -732,6 +732,7 @@ int main(int argc, char *argv[])
     rf.setDefaultContext("calibSupervisor");
     rf.setVerbose();
     rf.setDefaultContext(rf.getContext());
+    rf.setDefaultConfigFile("config.ini");
     rf.configure(argc,argv);
 
     return module.runModule(rf);
