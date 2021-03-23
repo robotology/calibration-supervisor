@@ -4,7 +4,7 @@ function copyParams () {
     local file=$1
     local -n icubEyesElem=$2
     local -n outputElem=$3
-
+    
     for i in $( seq 0 $sizeOfElements )
     do
         index=3
@@ -14,7 +14,10 @@ function copyParams () {
             if [ ! -z "$tmp" ]
             then
                 #echo "line $c ${outputElem[$i,$index]} --- ${tmp:0:2} wrt ${outputElem[$i,$index]:0:2} in index $index"
-                if [[ ${tmp:0:2} == ${outputElem[$i,$index]:0:2} ]];
+                tmp_param=$(echo ${tmp}| cut -d' ' -f 1)
+                out_param=$(echo ${outputElem[$i,$index]}| cut -d' ' -f 1)
+                if [[ $tmp_param == $out_param ]];
+                #if [[ ${tmp:0:2} == ${outputElem[$i,$index]:0:2} ]];
                 then 
                     sed "${c}s/.*/${outputElem[$i,$index]}/" $icubEyesFile  > tmp.txt
                     mv tmp.txt $icubEyesFile
@@ -58,6 +61,12 @@ function getLine () {
 
 function getFileParameters () {
 
+    # THIS FUNCTION WILL CREATE THE FOLLOWING STRUCTURE (example for camera_calibration_left):
+    # arr[0,0]=CAMERA_CALIBRATION_LEFT
+    # arr[0,1]=index of the line containing CAMERA_CALIBRATION_LEFT
+    # arr[0,2]=index of the last line of CAMERA_CALIBRATION_LEFT section
+    # arr[0,3<index<arr[0,2]]=content of each line inside CAMERA_CALIBRATION_LEFT section
+
     local file=$1
     local -n arr=$2
     
@@ -67,12 +76,26 @@ function getFileParameters () {
 
     local endLine="$(wc -l $file | awk '{ print $1 }' )"
     
-    arr[0,0]="CAMERA_CALIBRATION_RIGHT"
-    arr[0,1]=$(getLine "${arr[0,0]}" "$file")
-    arr[1,0]="CAMERA_CALIBRATION_LEFT"
-    arr[1,1]=$(getLine "${arr[1,0]}" "$file")
+    # MANAGING THE ORDER OF THE TWO SECTIONS : CAMERA_CALIBRATION_LEFT AND CAMERA_CALIBRATION_RIGHT
+    index_left=$(getLine "CAMERA_CALIBRATION_LEFT" "$file")
+    index_right=$(getLine "CAMERA_CALIBRATION_RIGHT" "$file")
+    if [[ $index_left < $index_right ]]
+    then
+      arr[0,0]="CAMERA_CALIBRATION_LEFT"
+      arr[0,1]=$index_left 
+      arr[1,0]="CAMERA_CALIBRATION_RIGHT"
+      arr[1,1]=$index_right 
+    else
+      arr[1,0]="CAMERA_CALIBRATION_LEFT"
+      arr[1,1]=$index_left
+      arr[0,0]="CAMERA_CALIBRATION_RIGHT"
+      arr[0,1]=$index_right 
+    fi
+
     arr[2,0]="STEREO_DISPARITY"
     arr[2,1]=$(getLine "${arr[2,0]}" "$file")
+    echo "STEREO_DISPARITY ${arr[2,1]}"
+   
 
     if [ -z "${arr[2,1]}" ]
     then
@@ -83,24 +106,58 @@ function getFileParameters () {
         arr[3,0]="ENDOFFILE"
         arr[3,1]=$((endLine+1))
     fi
-
+    
     tmp=${#arr[@]}
-    sizeOfElements=$((tmp / 4))
-
-    for i in $( seq 0 $sizeOfElements )
+    sizeOfElements=$((tmp / 4)) 
+    added_lines=0
+    for i in $( seq 0 $sizeOfElements) 
     do 
-        index=3
-        for (( c=${arr[$i,1]}+1; c<=${arr[$((i+1)),1]}-1; c++ ))
+        proj_found=false
+        draw_found=false
+        index=3 
+        for (( c=${arr[$i,1]}+1; c<=${arr[$((i+1)),1]}-1; c++ )) 
         do
             tmp="$(sed $c!d $file)"
-            if [ ! -z "$tmp" ]
+            if [[ $tmp == *"projection"* ]]; then
+               echo "projection is there!"
+               proj_found=true
+            fi
+            if [[ $tmp == *"drawCenterCross"* ]]; then
+               echo "drawCenterCross is there!"
+               draw_found=true
+            fi
+            
+            if [ ! -z "$tmp" ] 
             then
-                arr[$i,$index]=$tmp  
+                arr[$i,$index]="$tmp" 
                 index=$((index+1)) 
             fi
-            arr[$i,2]=$index
+            arr[$i,2]=$index 
         done
+        if [[ ($proj_found != true || $draw_found != true) && ($i -eq 0 || $i -eq 1) ]]
+        then  
+	   if [[ ($i -eq 1) ]]
+	   then
+	    arr[$i,1]=$((${arr[$i,1]}+$added_lines))
+	   fi	   
+	   index_line=$((${arr[$i,1]}+1))   
+	   first_line="projection         pinhole"
+	   second_line="drawCenterCross    0"
+	   if [[ $proj_found != true ]]
+	   then
+	   	(awk 'NR=='"$(($index_line+1))"' {print}1' $file | tee tmp.txt > /dev/null) && mv tmp.txt $file
+	   	(awk 'NR=='"$(($index_line+1))"' {$0='"\"$first_line\""'} { print }' "$file" | tee tmp.txt > /dev/null) && mv tmp.txt $file
+	   	added_lines=$(($added_lines + 1))
+	   fi
+	   if [[ $draw_found != true ]]
+	   then
+	   	(awk 'NR=='"$(($index_line+2))"' {print}1' $file | tee tmp.txt > /dev/null) && mv tmp.txt $file
+	   	(awk 'NR=='"$(($index_line+2))"' {$0='"\"$second_line\""'} { print }' "$file" | tee tmp.txt > /dev/null) && mv tmp.txt $file
+	   	added_lines=$(($added_lines + 1))
+	   fi
+        fi        
     done
+    
 }
 
 ###############################################################################
