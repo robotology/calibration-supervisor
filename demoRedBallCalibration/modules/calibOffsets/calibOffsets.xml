@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="yarpmanifest.xsl"?>
+
+<module>
+  <name>calib-supervisor</name>
+  <doxygen-group></doxygen-group>
+  <description> Extracts brightest blob in a sequence of disparity images</description>
+  <copypolicy>Released under the terms of the GNU GPL v2.0</copypolicy>
+  <version>1.0</version>
+
+  <description-long>
+    This module takes as input a grayscale image and outputs the brightest blob both as a
+    binary image and as an extracted rectangular crop around it, plus the blob centroid's coordinates and approximated area.
+
+</description-long>
+
+  <arguments>
+    <param default="closest-blob" desc="select the current context.">context</param>
+    <param default="config.ini" desc="configuration file name.">from</param>
+  </arguments>
+
+  <authors>
+    <author email="vadim.tikhanoff@iit.it"> Vadim Tikhanoff </author>
+    <author email="tanis.mar@iit.it"> Tanis Mar</author>
+  </authors>
+
+  <data>
+    <input>
+      <type>yarp::sig::Image</type>
+      <port carrier="udp">/closest-blob/disparity:i</port>
+      <description>
+        Gets the disparity input stream from the datasetplayer.
+      </description>
+    </input>
+    <input>
+      <type>yarp::sig::Image</type>
+      <port carrier="udp">/closest-blob/image:i</port>
+      <description>
+        Gets the camera input stream from the datasetplayer.
+      </description>
+    </input>
+    <output>
+      <type>yarp::sig::Image</type>
+      <port carrier="udp">/closest-blob/image:o</port>
+      <description>
+        Streams out the image of selected blob.
+      </description>
+    </output>
+    <output>
+      <type>yarp::sig::Image</type>
+      <port carrier="udp">/closest-blob/crop:o</port>
+      <description>
+        Streams out the cropped image of selected blob.
+      </description>
+    </output>
+    <output>
+      <type>yarp::sig::Bottle</type>
+      <port carrier="udp">/closest-blob/target:o</port>
+      <description>
+        Coordinates of the TL and BR points of the ROI around the selected blob
+      </description>
+    </output>
+  </data>
+
+  <services>
+    <server>
+      <type>closestBlob_IDL</type>
+      <idl>closest-blob.thrift</idl>
+      <port>/closest-blob/rpc</port>
+      <description>service port</description>
+    </server>
+  </services>
+
+</module>
