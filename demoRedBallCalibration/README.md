@@ -1,10 +1,10 @@
-# Automatic calibration for red ball demo 
+# Automatic calibration for red ball demo :red_circle:
 
 The *automatic calibration for red ball demo* includes two (independent) steps:
 1. [color calibration](#color-calibration);
 2. [reaching/grasping offsets calibration](#offsets-calibration).
 
-## Color calibration
+## :red_circle: :large_blue_circle: Color calibration
 The `calibColor` module calibrates the color of the image provided as input by maintaining the white balance.
 In the red ball demo, `calibColor` is used as input to `pf3dTracker`. 
 An example of output is the following:
@@ -18,7 +18,9 @@ https://user-images.githubusercontent.com/9716288/112461719-843e8a00-8d60-11eb-8
 
 The devised procedure estimates the offsets required by `demoRedBall` merging the information from **vision** and from the **cartesian controllers**: the offset is estimated as difference between the **end-effector** provided by the controller (green) and the **ball center** provided by the visual tracker (yellow), discounted by its radius. 
 
-![Screenshot 2021-02-10 at 17 20 57](https://user-images.githubusercontent.com/4537987/107539674-7cb68d80-6bc5-11eb-9129-36b9575b00b2.png)
+<p float="right">
+  <img src="https://user-images.githubusercontent.com/4537987/107539674-7cb68d80-6bc5-11eb-9129-36b9575b00b2.png" width="500" />
+</p>
 
 More specifically, the devised steps are the following:
 
@@ -31,9 +33,11 @@ More specifically, the devised steps are the following:
     lookAndCalibrate part
     ``` 
     where `part` is the arm you want to calibrate.
-    This will move the **desired arm/hand** in a predefined position and the **gaze** to look towards the end-effector. Now you can **push** the ball into the **middle of the palm** of the hand (to trigger calibration) (blue arrow in image). Only when the **offsets** between **end-effector** (green) and **tracking centroid** (yellow) will be computed, the service will provide an acknoledgement.
+    This will move the **desired arm/hand** in a predefined position and the **gaze** to look towards the end-effector. Now you can **push** the ball into the **middle of the palm** of the hand (to trigger calibration) (blue arrow in image). Only when the **offsets** between **end-effector** (green) and **tracking centroid** (yellow) will be computed, the service will provide an acknowledgment:
 
-    Note: the reaching and the grasping offsets contain a ball radius and a ball diameter respectively to avoid the hand touching the ball while reaching.  
+![Screenshot from 2021-04-20 14-00-07](https://user-images.githubusercontent.com/9716288/115392359-c385bc80-a1e0-11eb-9524-44e84edc7465.png)
+
+_Note: the reaching and the grasping offsets contain a ball radius and a ball diameter respectively to avoid the hand touching the ball while reaching._  
 
 6. in the same terminal type:
 
@@ -43,7 +47,7 @@ More specifically, the devised steps are the following:
 
     This will create a file called `calibOffsetsResults.txt` in the `calibOffsets` context.
 
-7. run the script `copyParams.sh` to write the offsets into `demoRedBall` configuration file.
+7. run the script `copyParamsRedBall.sh calibOffsetsResults.txt` to write the offsets into `demoRedBall` configuration file.
 
 Now we can run `demoRedBall` with the newly adapted conf file and do all required connections. 
 
