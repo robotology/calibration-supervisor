@@ -1,0 +1,29 @@
+<application>
+
+  <name>Calibrate Red Ball Offsets App</name>
+
+  <module>
+      <name>skinManager</name>
+      <parameters>--context skinGui --from skinManArm.ini</parameters>
+      <node>localhost</node>
+  </module>
+
+  <module>
+      <name>calibOffsets</name>
+      <parameters></parameters>
+      <node>localhost</node>
+  </module>
+
+  <connection>
+      <from>/skinManager/skin_events:o</from>
+      <to>/calibOffsets/handSkin:i</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+  <connection>
+      <from>/pf3dTracker/data:o</from>
+      <to>/calibOffsets/tracker:i</to>
+      <protocol>fast_tcp</protocol>
+  </connection>
+
+</application>

@@ -1,0 +1,31 @@
+<application>
+    <name>Calibrate Red Ball Color App</name>
+
+    <module>
+      <name>calibColor</name>
+      <parameters></parameters>
+      <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <node>localhost</node>
+        <parameters>--name /modified --x 300 --y 0</parameters>
+    </module>
+
+    <connection>
+        <from>/icub/cam/left</from>
+        <to>/calibColor/image:i</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+    <connection>
+        <from>/calibColor/image:o</from>
+        <to>/pf3dTracker/video:i</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+    <connection>
+        <from>/calibColor/image:o</from>
+        <to>/modified</to>
+        <protocol>fast_tcp</protocol>
+    </connection>
+</application>
