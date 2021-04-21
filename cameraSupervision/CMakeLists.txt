@@ -2,14 +2,11 @@
 # Authors: Valentina Vasco
 # CopyPolicy: Released under the terms of the GNU GPL v2.0.
 
-option(GAZEBO_AVAILABLE "enable any build that require gazebo" ON)
-if(GAZEBO_AVAILABLE)
-    find_package(GAZEBO REQUIRED)
-endif()
+find_package(GAZEBO QUIET)
 
 add_subdirectory(app)
 add_subdirectory(camera-calibration-best-pos)
 add_subdirectory(modules)
-if(GAZEBO_AVAILABLE)
+if(GAZEBO_FOUND)
     add_subdirectory(gazebo)
 endif()
