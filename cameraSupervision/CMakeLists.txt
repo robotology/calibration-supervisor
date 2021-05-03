@@ -2,6 +2,7 @@
 # Authors: Valentina Vasco
 # CopyPolicy: Released under the terms of the GNU GPL v2.0.
 
+project(cameraSupervision)
 find_package(GAZEBO QUIET)
 
 add_subdirectory(app)

@@ -32,7 +32,7 @@ run() {
     yarp wait /movePattern/gt:o
     yarp wait /movePattern/distorted:o   
 
-    yarpmanager-console --application ${ICUBcontrib_DIR}/share/ICUBcontrib/applications/camera-calibration-supervisor/$CONTEXT/camera-calibration-gazebo-test-img-app.xml --run --connect --exit --silent
+    yarpmanager-console --application ${ICUBcontrib_DIR}/share/ICUBcontrib/applications/cameraSupervision/$CONTEXT/camera-calibration-gazebo-test-img-app.xml --run --connect --exit --silent
 
     echo "Start!"
     for i in $( eval echo {1..$TEST_SET} )

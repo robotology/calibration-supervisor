@@ -34,7 +34,7 @@ run() {
       echo $calibfile
       if [ -s $calibfile ]; then
           camCalib --robotName icubSim --name /camCalib/left --context $CONTEXT/candidatePos_$i --from outputCalib.ini --group CAMERA_CALIBRATION_LEFT --CAMERA_CALIBRATION_LEFT::drawCenterCross 0 &
-      yarpmanager-console --application ${ICUBcontrib_DIR}/share/ICUBcontrib/applications/camera-calibration-supervisor/camera-calibration-best-pos/evaluate-calibration.xml --run --connect --exit --silent
+      yarpmanager-console --application ${ICUBcontrib_DIR}/share/ICUBcontrib/applications/cameraSupervision/camera-calibration-best-pos/evaluate-calibration.xml --run --connect --exit --silent
           echo "play" | yarp rpc /yarpdataplayer/rpc:i    
           echo "Start!"
           while true; do

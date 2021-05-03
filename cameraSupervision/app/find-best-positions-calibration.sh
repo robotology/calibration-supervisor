@@ -51,7 +51,7 @@ run() {
       yarp wait /stereoCalib/cmd
     
       echo "Connect all"
-      yarpmanager-console --application ${ICUBcontrib_DIR}/share/ICUBcontrib/applications/camera-calibration-supervisor/camera-calibration-best-pos/camera-calibration-gazebo-candidate-pos-app.xml --run --connect --exit --silent
+      yarpmanager-console --application ${ICUBcontrib_DIR}/share/ICUBcontrib/applications/cameraSupervision/camera-calibration-best-pos/camera-calibration-gazebo-candidate-pos-app.xml --run --connect --exit --silent
       echo "start" | yarp rpc /movePattern/rpc
       while true; do
         check=$(echo "isRunning" | yarp rpc /movePattern/rpc | awk '{print $2}')
