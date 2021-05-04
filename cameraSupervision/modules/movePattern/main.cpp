@@ -102,7 +102,7 @@ public:
         this->rf=rf;
         moduleName=rf.check("name", Value("movePattern"), "module name (string)").asString();
         setName(moduleName.c_str());
-        period=rf.check("period",Value(2.0)).asDouble();
+        period=rf.check("period",Value(2.5)).asDouble();
         nimages=rf.check("nimages",Value(30)).asInt();
         random=rf.check("random",Value(true)).asBool();
         autostart=rf.check("autostart",Value(false)).asBool();
@@ -386,11 +386,11 @@ public:
         Vector c_px(2);
         igaze->get2DPixel(0,c1_root,c_px);
 
-//        circle(img,Point(tl_px[0],tl_px[1]),2,Scalar(0,0,255),2,-1);
-//        circle(img,Point(tr_px[0],tr_px[1]),2,Scalar(0,0,255),2,-1);
-//        circle(img,Point(br_px[0],br_px[1]),2,Scalar(0,0,255),2,-1);
-//        circle(img,Point(bl_px[0],bl_px[1]),2,Scalar(0,0,255),2,-1);
-//        circle(img,Point(c_px[0],c_px[1]),2,Scalar(255,0,0),2,-1);
+        circle(img,Point(tl_px[0],tl_px[1]),2,Scalar(0,0,255),2,-1);
+        circle(img,Point(tr_px[0],tr_px[1]),2,Scalar(0,0,255),2,-1);
+        circle(img,Point(br_px[0],br_px[1]),2,Scalar(0,0,255),2,-1);
+        circle(img,Point(bl_px[0],bl_px[1]),2,Scalar(0,0,255),2,-1);
+        circle(img,Point(c_px[0],c_px[1]),2,Scalar(255,0,0),2,-1);
 
         //save image
         yInfo()<<"Saving image"<<idx;

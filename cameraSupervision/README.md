@@ -68,14 +68,6 @@ We devised this part entirely in `Gazebo`, through the following steps:
     This step was performed by running:
      
      `find-best-positions-calibration.sh run camera-calibration-best-pos/rgb-cameras/320x240 200`
-    
-    :point_up:  **Important note**:
- 
-    By default, the cameras considered are _rgb_ with a resolution of `320x240 px`. We currently support **higher resolution** (`640x480 px`) and **event cameras** with `304x240` resolution.
-    To generate the candidate positions, the _proper context_ and the _camera resolution_ have to be specified, specifically:
-    - for _rgb cameras with `640x480 px`_: `find-best-positions-calibration.sh run camera-calibration-best-pos/rgb-cameras/640x480 200 640 480`;
-    - for _event cameras with `304x240 px`_: `find-best-positions-calibration.sh run camera-calibration-best-pos/event-cameras/304x240 200 304 240 0.1734 0.13`. Notice that event-cameras require two additional parameters, i.e. the board parameters. This is because, in order to generate events, the pattern is shown flashing on a tablet, thus the board parameters are derived from the tablet dimensions.
-
 
 - **Run the calibration**: 
 
@@ -102,25 +94,42 @@ We devised this part entirely in `Gazebo`, through the following steps:
     This step was performed by running:
     
     `evaluate-calibration.sh run camera-calibration-best-pos/rgb-cameras/320x240 $ROBOT_CODE/camera-calibration-supervisor/testsets/rgb-cameras/320x240 200`
-
-    :point_up:  **Important note**:
-
-     To create the test set and run the evaluation for different resolution or camera, the _proper context_ and the _camera resolution_ have to be specified, specifically:
-
-    - for _rgb cameras with `640x480 px`_: 
-        - `create-calibration-test-set.sh run camera-calibration-best-pos/rgb-cameras/640x480 1 100 640 480`;
-        - `evaluate-calibration.sh run camera-calibration-best-pos/rgb-cameras/640x480 $ROBOT_CODE/camera-calibration-supervisor/testsets/rgb-cameras/640x480 200`
-    - for _event cameras with `304x240 px`_:
-        -  `create-calibration-test-set.sh run camera-calibration-best-pos/event-cameras/304x240 1 100 304 240`. 
-        -  `evaluate-calibration.sh run camera-calibration-best-pos/event-cameras/304x240 $ROBOT_COTDE/camera-calibration-supervisor/testsets/event-cameras/304x240 200`
-
+    
 - **Choose the best set of poses**: 
 
     The set of poses that generates the highest score, as computed through the previous step, is selected. 
 
+- **Supported cameras and resolutions**
+
+    We currently support the supervision of **rgb cameras** and **event cameras** with the following resolutions:
+    
+    **Rgb cameras**:
+    - `320x240 px` (default);
+    - ` 640x480 px`;
+    - `1024x768 px`;
+   
+   **Event cameras**:
+    - `304x240 px` (default);
+
+    In order to run the previous scripts, you will have to specify the proper `<context>` along with the `<resolution>`, `<width>` and  `<height>`:
+     - `find-best-positions-calibration.sh run <context> 200 <width> <height>`;
+      :point_up:  _Important note_:
+      For _event cameras_ the script requires two additional parameters,  i.e. the board sizes. The script to run will be:
+          - `find-best-positions-calibration.sh run camera-calibration-best-pos/event-cameras/304x240 200 304 240 0.1734 0.13`. This is because, in order to generate events, the pattern is shown flashing on a tablet, thus the board parameters are derived from the tablet dimensions.
+    
+     - `create-calibration-test-set.sh run <context> 1 100  <width> <height>`;
+     - `evaluate-calibration.sh run <context>  $ROBOT_CODE/calibration-supervisor/cameraSupervision/testsets/rgb-cameras/<resolution> 200`
+ 
+    The context can be specified in the form: `camera-calibration-best-pos/<camera-type>/<resolution>. For example:
+    - for event cameras the context is `camera-calibration-best-pos/event-cameras/304x240`;
+    - for rgb cameras, the contexts are:
+        - `320x240 px`: `camera-calibration-best-pos/rgb-cameras/320x240`;
+        - `640x480 px`: `camera-calibration-best-pos/rgb-cameras/640x480`;
+        - `1024x768 px`: `camera-calibration-best-pos/event-cameras/1024x768`.
+
 ### :mag_right:  Supervise the calibration procedure
 
-The supervisor provides an interface between the user and the calibration, in order to guide to user to place the chessboard in the poses identified through the above described pipeline. 
+The supervisor provides an interface between the user and the calibration, in order to guide to user to place the chessboard in the poses identified through the above-described pipeline. 
 Specifically, the module loads the best poses (i.e. the corner pixels of the bounding boxes) and the corresponding images and:
 
 - evaluates the content of the chessboard placement by:

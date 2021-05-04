@@ -10,7 +10,6 @@ run() {
     CONTEXT=$1
     FOLDER=$2
     CANDIDATES=$3
-    THRESHOLD=9.5
     yarpserver --write --silent &
 
     yarpdataplayer &
@@ -24,8 +23,12 @@ run() {
     calibEvaluator &
     yarp wait /calibEvaluator/rpc
     if [[ $CONTEXT == *"640x480"* ]]; then
-        echo "Setting threshold to $THRESHOLD"    
-        echo "setThreshold $THRESHOLD" | yarp rpc /calibEvaluator/rpc
+        echo "Setting threshold to 9.5"    
+        echo "setThreshold 9.5" | yarp rpc /calibEvaluator/rpc
+    fi
+    if [[ $CONTEXT == *"1024x768"* ]]; then
+        echo "Setting threshold to 15.3"    
+        echo "setThreshold 15.3" | yarp rpc /calibEvaluator/rpc
     fi
     for i in $( eval echo {1..$CANDIDATES} )
     do
