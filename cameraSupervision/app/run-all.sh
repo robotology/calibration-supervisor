@@ -176,11 +176,11 @@ outputFile=$resourcePath/$2
 
 echo "stereoCalib writes the following file: $outputFile"
 
-#if test -f "$outputFile"; then
-#    echo "$outputFile exists."
-#    echo "Removing $outputFile."
-#    rm $outputFile
-#fi
+if test -f "$outputFile"; then
+    echo "$outputFile exists."
+    echo "Removing $outputFile."
+    rm $outputFile
+fi
 
 if [[ $mono == "" ]]
 then
@@ -216,14 +216,13 @@ declare -A outputElements
 declare -A icubEyesElements
 
 echo "Running stereoCalib with monoCalib $mono"
-#stereoCalib --robotName $robotName --context $calibContext --from $icubEyesFile --STEREO_CALIBRATION_CONFIGURATION::numberOfPairs 30 --STEREO_CALIBRATION_CONFIGURATION::MonoCalib $mono & 
+stereoCalib --robotName $robotName --context $calibContext --from $icubEyesFile --STEREO_CALIBRATION_CONFIGURATION::numberOfPairs 30 --STEREO_CALIBRATION_CONFIGURATION::MonoCalib $mono & 
 
-#FILE=$outputFile
-#while [ ! -f $outputFile ]
-#do
-#  sleep 2 # or less like 0.2
-#  echo "waiting for file ..."
-#done
+while [ ! -f $outputFile ]
+do
+  sleep 2 # or less like 0.2
+  echo "waiting for file ..."
+done
 ##ls -l $outputFile
 
 echo "Got the file waiting for safety..."
@@ -244,8 +243,8 @@ sed -i '$ d' $outputFile
 
 sleep 3
 
-#camCalib --name /camCalib/right --from $icubEyesFile --group CAMERA_CALIBRATION_RIGHT > /dev/null 2>&1 &
-#camCalib --name /camCalib/left --from $icubEyesFile --group CAMERA_CALIBRATION_LEFT > /dev/null 2>&1
+camCalib --name /camCalib/right --from $icubEyesFile --group CAMERA_CALIBRATION_RIGHT > /dev/null 2>&1 &
+camCalib --name /camCalib/left --from $icubEyesFile --group CAMERA_CALIBRATION_LEFT > /dev/null 2>&1
 
 echo " "
 echo "Script completed successfully..."
