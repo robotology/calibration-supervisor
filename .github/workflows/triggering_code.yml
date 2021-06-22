@@ -2,8 +2,12 @@ name: triggering_code
 
 on: 
    push:  
+        branches:
+            - testing_GApps
+            - main
         paths:
-            - '**'
+            - 'cameraSupervision/**'
+            - 'demoRedBallCalibration/**'
 
 jobs:
     test:
@@ -23,25 +27,19 @@ jobs:
             echo '${{ steps.file_changes.outputs.files_modified}}'
             echo '${{ steps.file_changes.outputs.files_added}}'
             parsed_list=($(echo '${{ steps.file_changes.outputs.files}}' | tr ',' '\n')) 
-            trigger_flag=false
             img_list=""
             for i in "${parsed_list[@]}"
             do 
                 folder=$(echo $i | awk -F'/' '{print $1}' | tr -d '"' | tr -d '[' | tr -d ']')
                 if [[ "$folder" == "cameraSupervision" ]]
                 then
-                  trigger_flag=true
                   img_list="$img_list supervise-calib"
                 elif [[ "$folder" == "demoRedBallCalibration" ]]
                 then
-                  trigger_flag=true
                   img_list="$img_list grasp-the-ball"
                 fi
             done
-            if [[ $trigger_flag == true ]]
-            then 
-              img_list=${img_list:1}
-            fi
+            img_list=${img_list:1}
             echo "Trigger flag: $trigger_flag"
             echo "Image list: $img_list"
             echo "::set-output name=folder::$folder"
@@ -49,7 +47,6 @@ jobs:
             echo "::set-output name=img_list::$img_list"
 
         - name: Get Token
-          if: steps.check-modifications.outputs.trigger_flag == 'true'
           id: get_workflow_token
           uses: tibdex/github-app-token@v1
           with:
@@ -58,7 +55,6 @@ jobs:
             repository: icub-tech-iit/code
             
         - name: Repository dispatch to code
-          if: steps.check-modifications.outputs.trigger_flag == 'true'
           uses: peter-evans/repository-dispatch@v1
           env:
             GITHUB_APPS_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
