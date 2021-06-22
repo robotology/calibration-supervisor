@@ -3,13 +3,53 @@ name: triggering_code
 on: 
    push:  
         paths:
-            - 'cameraSupervision/**'
+            - '**'
 
 jobs:
     test:
       runs-on: [ubuntu-latest]
       steps:
+        - id: file_changes
+          if: github.event_name == 'push'
+          uses: trilom/file-changes-action@v1.2.3
+        - name: files
+          if: github.event_name == 'push'
+          id: check-modifications
+          run: |
+            cat $HOME/files.json
+            cat $HOME/files_modified.json
+            cat $HOME/files_added.json
+            echo '${{ steps.file_changes.outputs.files}}'
+            echo '${{ steps.file_changes.outputs.files_modified}}'
+            echo '${{ steps.file_changes.outputs.files_added}}'
+            parsed_list=($(echo '${{ steps.file_changes.outputs.files}}' | tr ',' '\n')) 
+            trigger_flag=false
+            img_list=""
+            for i in "${parsed_list[@]}"
+            do 
+                folder=$(echo $i | awk -F'/' '{print $1}' | tr -d '"' | tr -d '[' | tr -d ']')
+                if [[ "$folder" == "cameraSupervision" ]]
+                then
+                  trigger_flag=true
+                  img_list="$img_list supervise-calib"
+                elif [[ "$folder" == "demoRedBallCalibration" ]]
+                then
+                  trigger_flag=true
+                  img_list="$img_list grasp-the-ball"
+                fi
+            done
+            if [[ $trigger_flag == true ]]
+            then 
+              img_list=${img_list:1}
+            fi
+            echo "Trigger flag: $trigger_flag"
+            echo "Image list: $img_list"
+            echo "::set-output name=folder::$folder"
+            echo "::set-output name=trigger_flag::$trigger_flag"
+            echo "::set-output name=img_list::$img_list"
+
         - name: Get Token
+          if: steps.check-modifications.outputs.trigger_flag == 'true'
           id: get_workflow_token
           uses: tibdex/github-app-token@v1
           with:
@@ -18,6 +58,7 @@ jobs:
             repository: icub-tech-iit/code
             
         - name: Repository dispatch to code
+          if: steps.check-modifications.outputs.trigger_flag == 'true'
           uses: peter-evans/repository-dispatch@v1
           env:
             GITHUB_APPS_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
@@ -25,5 +66,5 @@ jobs:
             token: ${{ env.GITHUB_APPS_TOKEN }}
             repository: icub-tech-iit/code
             event-type: repository_trigger
-            client-payload: '{"type": "repository_trigger", "img_list": "supervise-calib"}'
+            client-payload: '{"type": "repository_trigger", "img_list": "$img_list"}'
 
