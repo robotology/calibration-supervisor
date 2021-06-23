@@ -2,7 +2,7 @@ clc;
 clear;
 close all;
 
-folder="/home/vvasco/.local/share/yarp/contexts/camera-calibration-best-pos/event-cameras-last-2/candidatePos_1/";
+folder=getenv('HOME')+"/.local/share/yarp/contexts/camera-calibration-best-pos/event-cameras-last-2/candidatePos_1/";
 if ~exist(folder,'dir')
     error('Could not find %s',folder);
 end

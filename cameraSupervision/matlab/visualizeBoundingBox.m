@@ -2,8 +2,8 @@ clc;
 clear;
 close all;
 
-% folder=getenv("ROBOT_CODE")+"/camera-calibration-supervisor";
-folder="/home/vvasco/.local/share/yarp/contexts/camera-calibration-best-pos/rgb-cameras/640x480/candidatePos_1/";
+% folder=getenv("HOME")+"/camera-calibration-supervisor";
+folder=getenv('HOME')+"/.local/share/yarp/contexts/camera-calibration-best-pos/rgb-cameras/640x480/candidatePos_1/";
 if ~exist(folder,'dir')
     error('Could not find %s',folder);
 end

@@ -2,7 +2,7 @@ clc;
 clear;
 close all;
 
-folder="/home/vvasco/.local/share/yarp/contexts/camera-calibration-best-pos/rgb-cameras/640x480";
+folder=getenv('HOME')+"/.local/share/yarp/contexts/camera-calibration-best-pos/rgb-cameras/640x480";
 if ~exist(folder,'dir')
     error('Could not find %s',folder);
 end

@@ -3,7 +3,7 @@ clear;
 close all;
 
 % Create a set of calibration images.
-images = imageDatastore(fullfile('/home/vvasco/.local/share/yarp/contexts/cameraCalibration', ...
+images = imageDatastore(fullfile(getenv('HOME')+'/.local/share/yarp/contexts/cameraCalibration', ...
     'chessboard_centered', 'calibImg_steady'));
 imageFileNames = images.Files;
 
