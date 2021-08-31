@@ -5,5 +5,5 @@
 #                                                                              #
 ################################################################################
 
-file(GLOB scripts ${CMAKE_SOURCE_DIR}/app/*.sh)
+file(GLOB scripts ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/app/*.sh)
 install(PROGRAMS ${scripts} DESTINATION bin)
