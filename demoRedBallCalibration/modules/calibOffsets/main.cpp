@@ -313,7 +313,7 @@ public:
             yInfo() << "Right arm not yet calibrated";
             return false;
         }
-        if (part == "both" && !calibrate_right || !calibrate_left)
+        if (part == "both" && (!calibrate_right || !calibrate_left))
         {
             yInfo() << "Left / right arm not yet calibrated";
             return false;
