@@ -31,7 +31,7 @@ function copyParams () {
                             then
                                 echo "Copying ${outputElem[$k,$j]} in section $group_name_icubeyes" 
                                 sed "${c}s/.*/${outputElem[$k,$j]}/" $icubEyesFile  > tmp.txt
-                                mv tmp.txt $icubEyesFile
+                                cp tmp.txt $icubEyesFile
                             fi
                         done
                     fi
