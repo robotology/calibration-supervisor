@@ -310,6 +310,7 @@ copyParams $icubEyesFile icubEyesElements outputElements
 
 #clean up files
 sed -i '$ d' $outputFile
+rm tmp.txt
 #sed -i '$ d' $icubEyesFile
 #sed -i '' -e '$ d' $outputFile
 
