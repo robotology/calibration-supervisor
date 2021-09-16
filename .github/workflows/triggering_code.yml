@@ -1,7 +1,9 @@
 name: triggering_code
 
 on: 
-   push:  
+   push:
+        branches:
+            - main
         paths:
             - 'cameraSupervision/**'
             - 'demoRedBallCalibration/**'
