@@ -20,7 +20,7 @@ To solve these issues, we devised a procedure that:
 - allows the user to select a **template** on the image;
 - shows the **vertical difference** in pixels between the left and right centroids of the selected template;
 - shows an **arrow** indicating in which **direction** the operator has to move the camera.
-When the vertical disalignment is below 3 pixels, the superimosed grid becomes green.
+When the vertical disalignment is below 3 pixels, the superimposed grid becomes green.
 
 ![tilt_calib](https://user-images.githubusercontent.com/9716288/115217791-222a3800-a106-11eb-9635-004d98f2d958.gif)
 
