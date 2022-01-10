@@ -241,9 +241,10 @@ mono=$4
 robotName=$5
 
 icubEyesFile=$(yarp resource --context $calibContext --from $1 | awk -F'"' '{print $2}' )
-echo "Using file $icubEyesFile"
+icubEyesFileClean="$(echo -e "${icubEyesFile}" | tr -d '[:space:]')"
+echo "Using file $icubEyesFileClean"
 
-resourcePath=$(echo "$icubEyesFile" | sed 's|\(.*\)/.*|\1|')
+resourcePath=$(echo "$icubEyesFileClean" | sed 's|\(.*\)/.*|\1|')
 outputFile=$resourcePath/$2
 
 echo "stereoCalib writes the following file: $outputFile"
