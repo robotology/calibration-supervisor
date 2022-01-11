@@ -317,6 +317,12 @@ rm tmp.txt
 
 sleep 3
 
+if test -f "$outputFile"; then
+    echo "$outputFile exists."
+    echo "Removing $outputFile."
+    rm $outputFile
+fi
+
 camCalib --name /camCalib/right --from $icubEyesFile --group CAMERA_CALIBRATION_RIGHT > /dev/null 2>&1 &
 camCalib --name /camCalib/left --from $icubEyesFile --group CAMERA_CALIBRATION_LEFT > /dev/null 2>&1
 
