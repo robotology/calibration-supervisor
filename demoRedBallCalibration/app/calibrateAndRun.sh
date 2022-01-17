@@ -30,9 +30,9 @@ function copyParams () {
     if [[ "${right_off_m[0,0]}" = "[right_arm]" ]]   
     then 
     	 new_reach_right_line="${conf_m[4,0]}\t${right_off_m[1,1]}" 
-   	 (awk 'NR=='"$new_reach_right_index"' {$0='"\"$new_reach_right_line\""'} { print }' "$file" | tee tmp.txt > /dev/null) && mv tmp.txt $file #Only for record (i.e. line) number "$new_reach_right_index, replace the whole record with the string '"\"$new_reach_right_line\""'. Then for every input record, print the record;
+   	 (awk 'NR=='"$new_reach_right_index"' {$0='"\"$new_reach_right_line\""'} { print }' "$file" | tee tmp.txt > /dev/null) && cp tmp.txt $file #Only for record (i.e. line) number "$new_reach_right_index, replace the whole record with the string '"\"$new_reach_right_line\""'. Then for every input record, print the record;
    	 new_grasp_right_line="${conf_m[5,0]}\t${right_off_m[2,1]}"
-    	(awk 'NR=='"$new_grasp_right_index"' {$0='"\"$new_grasp_right_line\""'} { print }' "$file" | tee tmp.txt > /dev/null) && mv tmp.txt $file 
+    	(awk 'NR=='"$new_grasp_right_index"' {$0='"\"$new_grasp_right_line\""'} { print }' "$file" | tee tmp.txt > /dev/null) && cp tmp.txt $file 
     fi 
     
      # REPLACING OFFSETS IN LEFT_ARM SECTION
@@ -44,9 +44,9 @@ function copyParams () {
     if [[ "${left_off_m[0,0]}" = "[left_arm]" ]] 
     then 
       new_reach_left_line="${conf_m[1,0]}\t${left_off_m[1,1]}" 
-      (awk 'NR=='"$new_reach_left_index"' {$0='"\"$new_reach_left_line\""'} { print }' "$file" | tee tmp.txt > /dev/null) && mv tmp.txt $file 
+      (awk 'NR=='"$new_reach_left_index"' {$0='"\"$new_reach_left_line\""'} { print }' "$file" | tee tmp.txt > /dev/null) && cp tmp.txt $file 
       new_grasp_left_line="${conf_m[2,0]}\t${left_off_m[2,1]}" 
-      (awk 'NR=='"$new_grasp_left_index"' {$0='"\"$new_grasp_left_line\""'} { print }' "$file" | tee tmp.txt > /dev/null) && mv tmp.txt $file 
+      (awk 'NR=='"$new_grasp_left_index"' {$0='"\"$new_grasp_left_line\""'} { print }' "$file" | tee tmp.txt > /dev/null) && cp tmp.txt $file 
     fi	
 }
 
@@ -126,6 +126,14 @@ echo "Using file $configIniFile"
 copyParams $configIniFile leftOffsetsMatrix rightOffsetsMatrix configIniMatrix 
 
 sleep 3
+
+#clean up files
+rm tmp.txt
+if test -f "$calibResultFile"; then
+    echo "$calibResultFile exists."
+    echo "Removing $calibResultFile."
+    rm $calibResultFile
+fi
 
 demoRedBall --from $configIniFile
 
