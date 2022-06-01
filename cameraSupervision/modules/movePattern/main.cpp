@@ -102,22 +102,22 @@ public:
         this->rf=rf;
         moduleName=rf.check("name", Value("movePattern"), "module name (string)").asString();
         setName(moduleName.c_str());
-        period=rf.check("period",Value(2.5)).asDouble();
-        nimages=rf.check("nimages",Value(30)).asInt();
+        period=rf.check("period",Value(2.5)).asFloat64();
+        nimages=rf.check("nimages",Value(30)).asInt32();
         random=rf.check("random",Value(true)).asBool();
         autostart=rf.check("autostart",Value(false)).asBool();
         save_result=rf.check("save",Value(true)).asBool();
         create_test=rf.check("create_test",Value(false)).asBool();
-        maxx=rf.check("maxx",Value(0.05)).asDouble();
-        maxy=rf.check("maxy",Value(0.035)).asDouble();
-        maxz=rf.check("maxz",Value(0.0)).asDouble();
-        maxangle=(M_PI/180)*rf.check("maxangle",Value(20.0)).asDouble();
-        nhor=rf.check("nhor",Value(8)).asDouble();
-        nver=rf.check("nver",Value(6)).asDouble();
-        width=rf.check("width",Value(320)).asInt();
-        height=rf.check("height",Value(240)).asInt();
-        board_width=rf.check("board_width",Value(0.297)).asDouble();
-        board_height=rf.check("board_height",Value(0.21)).asDouble();
+        maxx=rf.check("maxx",Value(0.05)).asFloat64();
+        maxy=rf.check("maxy",Value(0.035)).asFloat64();
+        maxz=rf.check("maxz",Value(0.0)).asFloat64();
+        maxangle=(M_PI/180)*rf.check("maxangle",Value(20.0)).asFloat64();
+        nhor=rf.check("nhor",Value(8)).asFloat64();
+        nver=rf.check("nver",Value(6)).asFloat64();
+        width=rf.check("width",Value(320)).asInt32();
+        height=rf.check("height",Value(240)).asInt32();
+        board_width=rf.check("board_width",Value(0.297)).asFloat64();
+        board_height=rf.check("board_height",Value(0.21)).asFloat64();
         square_size=board_width/nhor;
 
         leftImageInPort.open("/"+moduleName+"/leftImage:i");
@@ -210,12 +210,12 @@ public:
         yInfo()<<"Moving to first position"<<p.toString()<<count;
         Bottle &poseB=outPort.prepare();
         poseB.clear();
-        poseB.addDouble(p[0]);
-        poseB.addDouble(p[1]);
-        poseB.addDouble(p[2]);
-        poseB.addDouble(p[3]);
-        poseB.addDouble(p[4]);
-        poseB.addDouble(p[5]);
+        poseB.addFloat64(p[0]);
+        poseB.addFloat64(p[1]);
+        poseB.addFloat64(p[2]);
+        poseB.addFloat64(p[3]);
+        poseB.addFloat64(p[4]);
+        poseB.addFloat64(p[5]);
         outPort.write();
 
         //start stereoCalib
@@ -262,12 +262,12 @@ public:
     {
         Bottle &poseB=outPort.prepare();
         poseB.clear();
-        poseB.addDouble(0.0);
-        poseB.addDouble(0.0);
-        poseB.addDouble(0.0);
-        poseB.addDouble(0.0);
-        poseB.addDouble(0.0);
-        poseB.addDouble(0.0);
+        poseB.addFloat64(0.0);
+        poseB.addFloat64(0.0);
+        poseB.addFloat64(0.0);
+        poseB.addFloat64(0.0);
+        poseB.addFloat64(0.0);
+        poseB.addFloat64(0.0);
         outPort.write();
     }
 
@@ -482,8 +482,8 @@ public:
             if (b->size() > 0)
             {
                 Bottle *m=b->get(0).asList();
-                int nrows=m->get(0).asInt();
-                int ncols=m->get(1).asInt();
+                int nrows=m->get(0).asInt32();
+                int ncols=m->get(1).asInt32();
                 T.resize(nrows,ncols);
                 Bottle *t=m->get(2).asList();
                 int k=0;
@@ -491,7 +491,7 @@ public:
                 {
                     for (size_t j=0; j<ncols; j++)
                     {
-                        T[i][j]=t->get(k).asDouble();
+                        T[i][j]=t->get(k).asFloat64();
                         k++;
                     }
                 }
@@ -552,12 +552,12 @@ public:
                 yInfo()<<"Moving to"<<p.toString()<<count;
                 Bottle &poseB=outPort.prepare();
                 poseB.clear();
-                poseB.addDouble(p[0]);
-                poseB.addDouble(p[1]);
-                poseB.addDouble(p[2]);
-                poseB.addDouble(p[3]);
-                poseB.addDouble(p[4]);
-                poseB.addDouble(p[5]);
+                poseB.addFloat64(p[0]);
+                poseB.addFloat64(p[1]);
+                poseB.addFloat64(p[2]);
+                poseB.addFloat64(p[3]);
+                poseB.addFloat64(p[4]);
+                poseB.addFloat64(p[5]);
                 outPort.write();
 
                 count++;
@@ -614,11 +614,11 @@ public:
         if (command.get(0).asString()=="start")
         {
             yInfo()<<"Starting";
-            reply.addInt(startMoving());
+            reply.addInt32(startMoving());
         }
         else if (command.get(0).asString()=="isRunning")
         {
-            reply.addInt(isRunning());
+            reply.addInt32(isRunning());
         }
         else if (command.get(0).asString()=="stop")
         {

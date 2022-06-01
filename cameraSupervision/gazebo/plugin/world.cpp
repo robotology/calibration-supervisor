@@ -49,12 +49,12 @@ class ModelMover : public gazebo::ModelPlugin
                     }
                 }
 
-                const auto x = b->get(0).asDouble();
-                const auto y = b->get(1).asDouble();
-                const auto z = b->get(2).asDouble();
-                const auto roll = b->get(3).asDouble();
-                const auto pitch = b->get(4).asDouble();
-                const auto yaw = b->get(5).asDouble();
+                const auto x = b->get(0).asFloat64();
+                const auto y = b->get(1).asFloat64();
+                const auto z = b->get(2).asFloat64();
+                const auto roll = b->get(3).asFloat64();
+                const auto pitch = b->get(4).asFloat64();
+                const auto yaw = b->get(5).asFloat64();
                 yarp::sig::Matrix T0 = yarp::math::zeros(4,4);
                 yarp::sig::Vector t0{x,y,z,1.0};
                 yarp::sig::Vector rpy0{roll,pitch,yaw};
