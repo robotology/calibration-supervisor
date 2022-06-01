@@ -106,73 +106,73 @@ public:
         if (cl->size() > 0)
         {
             calibLeft.resize(7);
-            calibLeft[0] = cl->get(0).asDouble();
-            calibLeft[1] = cl->get(1).asDouble();
-            calibLeft[2] = cl->get(2).asDouble();
-            calibLeft[3] = cl->get(3).asDouble();
-            calibLeft[4] = cl->get(4).asDouble();
-            calibLeft[5] = cl->get(5).asDouble();
-            calibLeft[6] = cl->get(6).asDouble();
+            calibLeft[0] = cl->get(0).asFloat64();
+            calibLeft[1] = cl->get(1).asFloat64();
+            calibLeft[2] = cl->get(2).asFloat64();
+            calibLeft[3] = cl->get(3).asFloat64();
+            calibLeft[4] = cl->get(4).asFloat64();
+            calibLeft[5] = cl->get(5).asFloat64();
+            calibLeft[6] = cl->get(6).asFloat64();
         }
 
         if (cr->size() > 0)
         {
             calibRight.resize(7);
-            calibRight[0] = cr->get(0).asDouble();
-            calibRight[1] = cr->get(1).asDouble();
-            calibRight[2] = cr->get(2).asDouble();
-            calibRight[3] = cr->get(3).asDouble();
-            calibRight[4] = cr->get(4).asDouble();
-            calibRight[5] = cr->get(5).asDouble();
-            calibRight[6] = cr->get(6).asDouble();
+            calibRight[0] = cr->get(0).asFloat64();
+            calibRight[1] = cr->get(1).asFloat64();
+            calibRight[2] = cr->get(2).asFloat64();
+            calibRight[3] = cr->get(3).asFloat64();
+            calibRight[4] = cr->get(4).asFloat64();
+            calibRight[5] = cr->get(5).asFloat64();
+            calibRight[6] = cr->get(6).asFloat64();
         }
 
         if (homep->size() > 0)
         {
             homePos.resize(7);
-            homePos[0] = homep->get(0).asDouble();
-            homePos[1] = homep->get(1).asDouble();
-            homePos[2] = homep->get(2).asDouble();
-            homePos[3] = homep->get(3).asDouble();
-            homePos[4] = homep->get(4).asDouble();
-            homePos[5] = homep->get(5).asDouble();
-            homePos[6] = homep->get(6).asDouble();
+            homePos[0] = homep->get(0).asFloat64();
+            homePos[1] = homep->get(1).asFloat64();
+            homePos[2] = homep->get(2).asFloat64();
+            homePos[3] = homep->get(3).asFloat64();
+            homePos[4] = homep->get(4).asFloat64();
+            homePos[5] = homep->get(5).asFloat64();
+            homePos[6] = homep->get(6).asFloat64();
         }
 
         if (homev->size() > 0)
         {
             homeVels.resize(7);
-            homeVels[0] = homev->get(0).asDouble();
-            homeVels[1] = homev->get(1).asDouble();
-            homeVels[2] = homev->get(2).asDouble();
-            homeVels[3] = homev->get(3).asDouble();
-            homeVels[4] = homev->get(4).asDouble();
-            homeVels[5] = homev->get(5).asDouble();
-            homeVels[6] = homev->get(6).asDouble();
+            homeVels[0] = homev->get(0).asFloat64();
+            homeVels[1] = homev->get(1).asFloat64();
+            homeVels[2] = homev->get(2).asFloat64();
+            homeVels[3] = homev->get(3).asFloat64();
+            homeVels[4] = homev->get(4).asFloat64();
+            homeVels[5] = homev->get(5).asFloat64();
+            homeVels[6] = homev->get(6).asFloat64();
         }
         
         if (calibLeftPosition->size() > 0)
         {
             calibLeftPos.resize(7);
-            calibLeftPos[0] = calibLeftPosition->get(0).asDouble();
-            calibLeftPos[1] = calibLeftPosition->get(1).asDouble();
-            calibLeftPos[2] = calibLeftPosition->get(2).asDouble();
-            calibLeftPos[3] = calibLeftPosition->get(3).asDouble();
-            calibLeftPos[4] = calibLeftPosition->get(4).asDouble();
-            calibLeftPos[5] = calibLeftPosition->get(5).asDouble();
-            calibLeftPos[6] = calibLeftPosition->get(6).asDouble();
+            calibLeftPos[0] = calibLeftPosition->get(0).asFloat64();
+            calibLeftPos[1] = calibLeftPosition->get(1).asFloat64();
+            calibLeftPos[2] = calibLeftPosition->get(2).asFloat64();
+            calibLeftPos[3] = calibLeftPosition->get(3).asFloat64();
+            calibLeftPos[4] = calibLeftPosition->get(4).asFloat64();
+            calibLeftPos[5] = calibLeftPosition->get(5).asFloat64();
+            calibLeftPos[6] = calibLeftPosition->get(6).asFloat64();
         }
 
         if (calibRightPosition->size() > 0)
         {
             calibRightPos.resize(7);
-            calibRightPos[0] = calibRightPosition->get(0).asDouble();
-            calibRightPos[1] = calibRightPosition->get(1).asDouble();
-            calibRightPos[2] = calibRightPosition->get(2).asDouble();
-            calibRightPos[3] = calibRightPosition->get(3).asDouble();
-            calibRightPos[4] = calibRightPosition->get(4).asDouble();
-            calibRightPos[5] = calibRightPosition->get(5).asDouble();
-            calibRightPos[6] = calibRightPosition->get(6).asDouble();
+            calibRightPos[0] = calibRightPosition->get(0).asFloat64();
+            calibRightPos[1] = calibRightPosition->get(1).asFloat64();
+            calibRightPos[2] = calibRightPosition->get(2).asFloat64();
+            calibRightPos[3] = calibRightPosition->get(3).asFloat64();
+            calibRightPos[4] = calibRightPosition->get(4).asFloat64();
+            calibRightPos[5] = calibRightPosition->get(5).asFloat64();
+            calibRightPos[6] = calibRightPosition->get(6).asFloat64();
         }
 
         this->skinPressureThresh = skinPressureThresh;
@@ -423,13 +423,13 @@ public:
                 bool ok_to_go = false;
                 if (part == "left")
                 {
-                    ok_to_go = bodyPart->get(1).asInt() == 3 && bodyPart->get(2).asInt() == 6
-                            && bodyPart->get(3).asInt() == 1;
+                    ok_to_go = bodyPart->get(1).asInt32() == 3 && bodyPart->get(2).asInt32() == 6
+                            && bodyPart->get(3).asInt32() == 1;
                 }
                 else if (part == "right")
                 {
-                    ok_to_go = bodyPart->get(1).asInt() == 4 && bodyPart->get(2).asInt() == 6
-                            && bodyPart->get(3).asInt() == 4;
+                    ok_to_go = bodyPart->get(1).asInt32() == 4 && bodyPart->get(2).asInt32() == 6
+                            && bodyPart->get(3).asInt32() == 4;
                 }
                 else
                 {
@@ -438,14 +438,14 @@ public:
                 if (ok_to_go && calibrating)
                 {
                     yInfo() << "Starting calibration";
-                    double avgPressure = subSkin->get(7).asDouble();
+                    double avgPressure = subSkin->get(7).asFloat64();
                     if (avgPressure >= skinPressureThresh)
                     {
                         yarp::os::Bottle *activeTaxels = subSkin->get(6).asList();
                         int countActive = 0;
                         for (int i = 0; i < activeTaxels->size(); i++)
                         {
-                            int ai = activeTaxels->get(i).asInt();
+                            int ai = activeTaxels->get(i).asInt32();
                             if(std::count(allowedTaxels.begin(), allowedTaxels.end(), ai))//if (ai >= 97 && ai <= 144)
                             {
                                 countActive++;
@@ -459,7 +459,7 @@ public:
                             yarp::os::Bottle *ballPos = trackerInPort.read();
                             if (ballPos->size() > 0)
                             {
-                                if (ballPos->get(3).asDouble() > ballLikelihoodThresh)
+                                if (ballPos->get(3).asFloat64() > ballLikelihoodThresh)
                                 {
                                     yarp::sig::Vector xEye, oEye;
                                     igaze->getLeftEyePose(xEye, oEye);
@@ -467,9 +467,9 @@ public:
                                     eye2root.setSubcol(xEye, 0, 3);
 
                                     yarp::sig::Vector posBallEye(4);
-                                    posBallEye[0] = ballPos->get(0).asDouble();
-                                    posBallEye[1] = ballPos->get(1).asDouble();
-                                    posBallEye[2] = ballPos->get(2).asDouble();
+                                    posBallEye[0] = ballPos->get(0).asFloat64();
+                                    posBallEye[1] = ballPos->get(1).asFloat64();
+                                    posBallEye[2] = ballPos->get(2).asFloat64();
                                     posBallEye[3] = 1.0;
 
                                     yarp::sig::Vector posBallRoot = eye2root * posBallEye;
@@ -777,12 +777,12 @@ public:
         yarp::os::Bottle *calibRightPosition=rf.find("calibRightPosition").asList();
 
 
-        double skinPressureThresh = rf.check("skinPressureThresh", yarp::os::Value(20.0), "threshold for skin average pressure").asDouble();
-        int activeTaxelsThresh = rf.check("activeTaxelsThresh", yarp::os::Value(3), "threshold for palm active taxels").asInt();
-        double ballLikelihoodThresh = rf.check("ballLikelihoodThresh", yarp::os::Value(0.0005), "threshold on likelihood for detecting the ball").asDouble();
-        int filterOrder = rf.check("filterOrder", yarp::os::Value(20), "order of the filter").asInt();
-        double xOffset = rf.check("xOffset", yarp::os::Value(0.01), "offset to apply on the x direction [m]").asDouble();
-        double ballRadius = rf.check("ballRadius", yarp::os::Value(0.03), "ball radius [m]").asDouble();
+        double skinPressureThresh = rf.check("skinPressureThresh", yarp::os::Value(20.0), "threshold for skin average pressure").asFloat64();
+        int activeTaxelsThresh = rf.check("activeTaxelsThresh", yarp::os::Value(3), "threshold for palm active taxels").asInt32();
+        double ballLikelihoodThresh = rf.check("ballLikelihoodThresh", yarp::os::Value(0.0005), "threshold on likelihood for detecting the ball").asFloat64();
+        int filterOrder = rf.check("filterOrder", yarp::os::Value(20), "order of the filter").asInt32();
+        double xOffset = rf.check("xOffset", yarp::os::Value(0.01), "offset to apply on the x direction [m]").asFloat64();
+        double ballRadius = rf.check("ballRadius", yarp::os::Value(0.03), "ball radius [m]").asFloat64();
 
         rpcPort.open(("/"+getName("/rpc")).c_str());
 

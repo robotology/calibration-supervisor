@@ -255,10 +255,10 @@ public:
 
             while( getline( str, line ) ) {
                 yarp::os::Bottle b( line );
-                calibData[index].topLeft = cv::Point(b.get(0).asList()->get(0).asInt(), b.get(0).asList()->get(1).asInt());
-                calibData[index].topRight = cv::Point(b.get(0).asList()->get(2).asInt(), b.get(0).asList()->get(3).asInt());
-                calibData[index].bottomLeft = cv::Point(b.get(1).asList()->get(0).asInt(), b.get(1).asList()->get(1).asInt());
-                calibData[index].bottomRight = cv::Point(b.get(1).asList()->get(2).asInt(), b.get(1).asList()->get(3).asInt());
+                calibData[index].topLeft = cv::Point(b.get(0).asList()->get(0).asInt32(), b.get(0).asList()->get(1).asInt32());
+                calibData[index].topRight = cv::Point(b.get(0).asList()->get(2).asInt32(), b.get(0).asList()->get(3).asInt32());
+                calibData[index].bottomLeft = cv::Point(b.get(1).asList()->get(0).asInt32(), b.get(1).asList()->get(1).asInt32());
+                calibData[index].bottomRight = cv::Point(b.get(1).asList()->get(2).asInt32(), b.get(1).asList()->get(3).asInt32());
                 calibData[index].imageName = b.get(2).asList()->get(0).asString();
 
                 index ++;
@@ -633,7 +633,7 @@ public:
         std::string fileName = rf.check("file", yarp::os::Value("calibrations.ini"), "file name (string)").asString();
         bool stereo = rf.check("stereo", yarp::os::Value(true),"true for stereo calibration (bool)").asBool();
         bool eventCam = rf.check("eventCam", yarp::os::Value(false),"if true, the pipeline for the event camera is active (bool)").asBool();
-        double percentageThresh = rf.check("percentageThresh", yarp::os::Value(90.0),"threshold percentage for matching image from camera and from gazebo (double)").asDouble();
+        double percentageThresh = rf.check("percentageThresh", yarp::os::Value(90.0),"threshold percentage for matching image from camera and from gazebo (double)").asFloat64();
         setName(moduleName.c_str());
 
         rpcPort.open(("/"+getName("/rpc")).c_str());

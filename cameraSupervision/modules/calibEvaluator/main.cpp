@@ -252,7 +252,7 @@ public:
         this->rf=&rf;
         std::string moduleName = rf.check("name", yarp::os::Value("calibEvaluator"), "module name (string)").asString();
         setName(moduleName.c_str());
-        int nimages=rf.check("nimages",yarp::os::Value(100),"number of images to be tested (int)").asInt();
+        int nimages=rf.check("nimages",yarp::os::Value(100),"number of images to be tested (int)").asInt32();
 
         rpcPort.open(("/"+getName("/rpc")).c_str());
 
