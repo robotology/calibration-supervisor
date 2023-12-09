@@ -18,7 +18,7 @@ source_group("DOC Files" FILES ${doc})
 add_executable(${PROJECT_NAME} main.cpp ${idl} ${IDL_GEN_FILES} ${doc})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${YARP_LIBRARIES} ${OpenCV_LIBRARIES} )
+target_link_libraries(${PROJECT_NAME} ${YARP_LIBRARIES} ${OpenCV_LIBS} )
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 yarp_install(FILES  DESTINATION ${ICUBCONTRIB_MODULES_INSTALL_DIR})
 
