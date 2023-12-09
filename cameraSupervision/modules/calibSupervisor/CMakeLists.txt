@@ -24,7 +24,7 @@ source_group("DOC Files" FILES ${doc})
 include_directories(${YARP_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 
 add_executable(${PROJECT_NAME} main.cpp ${doc} ${idl} ${IDL_GEN_FILES})
-target_link_libraries(${PROJECT_NAME} ${YARP_LIBRARIES} ${OpenCV_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${YARP_LIBRARIES} ${OpenCV_LIBS})
 
 # generate ad-hoc project to perform "make uninstall"
 icubcontrib_add_uninstall_target()
